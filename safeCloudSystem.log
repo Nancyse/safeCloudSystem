@@ -1,0 +1,5 @@
+2018-04-06 22:54:05,221 [main] DEBUG demo.TestLog - debug level
+2018-04-06 22:54:05,235 [main] INFO  demo.TestLog - info level
+2018-04-06 22:54:05,236 [main] WARN  demo.TestLog - warn level: nancyse
+2018-04-06 22:54:05,237 [main] ERROR demo.TestLog - error level
+2018-04-06 22:54:05,237 [main] FATAL demo.TestLog - fatal level
