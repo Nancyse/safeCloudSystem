@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN "
+ " http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+ 
+ <mapper namespace="com.nancyse.controller.GenericServer.DataModel.UserMapper">
+ 	<insert id="save" parameterType="com.nancyse.controller.GenericServer.DataModel.User" useGeneratedKeys="true">
+ 		Insert into Users(user_name,user_pwd,user_type) values(#{user_name},#{user_pwd},#{user_type})
+ 	</insert>
+ 	
+ 	<select id="selectOne" parameterType="String" resultType="com.nancyse.controller.GenericServer.DataModel.User" >
+ 		Select * from Users where user_name=#{user_name}
+ 	</select>
+ 	<select id="selectAll"  resultType="com.nancyse.controller.GenericServer.DataModel.User" >
+ 		Select * from Users 
+ 	</select>
+ 	
+ 	<update id="updatePwd" parameterType="com.nancyse.controller.GenericServer.DataModel.User">
+ 		update Users set user_pwd=#{user_pwd} where user_name=#{user_name}
+ 	</update>
+ 	
+ 	
+ </mapper>
