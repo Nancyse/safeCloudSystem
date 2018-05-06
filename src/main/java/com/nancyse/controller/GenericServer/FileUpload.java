@@ -52,7 +52,7 @@ public class FileUpload {
 		byte[] rawfileData = file.getBytes();
 		
 		//计算文件的hash值
-		String fileHash=Util.getSHA256HashCode(rawfileData);  
+		String fileHash=FileEncryptUtil.getSHA256HashCode(rawfileData);  
 		//System.out.println("fileHash:"+fileHash);
 		
 		//配置请求参数
@@ -72,15 +72,15 @@ public class FileUpload {
 		
 		//System.out.println("EncryptKey: "+fileKey);
 		//System.out.println("Fileblock: "+ fileblock);
-		Util.logger.info("EncryptKey: "+fileKey);
-		Util.logger.info("Fileblock: "+ fileblock);
+		FileEncryptUtil.logger.info("EncryptKey: "+fileKey);
+		FileEncryptUtil.logger.info("Fileblock: "+ fileblock);
 		
 		//加密文件		
 		//String path = req.getServletContext().getRealPath("/encryptFiles/");
 		String path=FilePath.UPLOADFILEPATH;
 		//String path = "E:/files/";
 		//System.out.println("encryptfilepath: "+path);
-		Util.logger.info("encryptfilepath: "+path);
+		FileEncryptUtil.logger.info("encryptfilepath: "+path);
 		
 		String filename = file.getOriginalFilename();
 		File filepath = new File(path,filename);
@@ -89,7 +89,7 @@ public class FileUpload {
 		}
 		File encryptfile = new File(path+File.separator+filename);
 		
-		Util.encryptFile(rawfileData, encryptfile, fileKey);
+		FileEncryptUtil.encryptFile(rawfileData, encryptfile, fileKey);
 		
 		//保存文件控制块
 		saveBlock(req,fileblock,filename);
@@ -103,7 +103,7 @@ public class FileUpload {
 		//String path=request.getServletContext().getRealPath("/fileblocks/");
 		String path=FilePath.FILEBLOCKPATH;
 		//System.out.println("fileblock path:"+path);
-		Util.logger.info("fileblock path:"+path);
+		FileEncryptUtil.logger.info("fileblock path:"+path);
 		
 		//上传文件
 		File filepath=new File(path,filename);
@@ -128,7 +128,7 @@ public class FileUpload {
 	//获取文件密钥和文件控制块
 	private String getFileKeyAndFileBlock(Map<String,String> map) {
 		String result="";
-		String urltemp = Util.hostName+"/safeCloudSystem/AS2/createFileKeyAndFileBlock";
+		String urltemp = FileEncryptUtil.hostName+"/safeCloudSystem/AS2/createFileKeyAndFileBlock";
 		String url=buildUrl(urltemp,map);  //组合url
 		try {
 			URLConnection conn = new URL(url).openConnection();

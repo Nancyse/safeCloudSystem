@@ -28,6 +28,8 @@
  	<mappers>
  		<mapper resource="com/nancyse/controller/demo/testMybatis/UserMapper.xml" />
  		<mapper resource="com/nancyse/controller/GenericServer/DataModel/UserMapper.xml"/>
+ 		<mapper resource="com/nancyse/controller/GenericServer/DataModel/DefaultFileMapper.xml"/>
+ 		<mapper resource="com/nancyse/controller/GenericServer/DataModel/FileBufferMapper.xml"/>
  	</mappers>
  	
  </configuration>

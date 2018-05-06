@@ -37,7 +37,7 @@ public class FileDownload {
 			) throws IOException {
 		//获得解密密钥
 		String fileKey = getDecryptKey(request,filename);
-		Util.logger.info("decrypt key:"+fileKey);
+		FileEncryptUtil.logger.info("decrypt key:"+fileKey);
 		
 		//找到下载的文件
 		//String path=request.getServletContext().getRealPath("/encryptFiles/");
@@ -47,8 +47,8 @@ public class FileDownload {
 		//解密文件
 		File decrypfile = new File("decryfile.txt");  //创建一个临时文件,保存解码后的文件
 		decrypfile.deleteOnExit();  //推出虚拟机的同时，删除文件
-		File file=Util.decryptFile2(rawfile,decrypfile,fileKey);		
-		Util.logger.info(decrypfile.getAbsolutePath());
+		File file=FileEncryptUtil.decryptFile2(rawfile,decrypfile,fileKey);		
+		FileEncryptUtil.logger.info(decrypfile.getAbsolutePath());
 		//对文件的正确性进行校验
 		
 		
@@ -87,7 +87,7 @@ public class FileDownload {
 	 */
 	public String getFileKey(String filedata) {
 		String fileKey="";
-		String urlName = Util.hostName+"/safeCloudSystem/AS2/decryptFileBlock?block="+filedata;
+		String urlName = FileEncryptUtil.hostName+"/safeCloudSystem/AS2/decryptFileBlock?block="+filedata;
 
 		try {
 			URLConnection conn = new URL(urlName).openConnection();

@@ -53,7 +53,7 @@ public class UserManager {
 		//生成默认密码
 		String pwd = "pwd-"+username;
 		//生成加密密码
-		String encryptPwd = Util.getSHA256HashCode(pwd.getBytes());
+		String encryptPwd = FileEncryptUtil.getSHA256HashCode(pwd.getBytes());
 		System.out.println(encryptPwd);	
 		//密码保存到数据库中		
 		User user = new User(username,encryptPwd,type);
@@ -118,7 +118,7 @@ public class UserManager {
 		if(username=="" || pwd=="") {
 			return false;
 		}	
-		String encryptPwd = Util.getSHA256HashCode(pwd.getBytes());
+		String encryptPwd = FileEncryptUtil.getSHA256HashCode(pwd.getBytes());
 		sqlSession = sqlSessionFactory.openSession();
 		User user = sqlSession.selectOne(statementId+".selectOne",username);
 		Boolean result=false;
@@ -170,7 +170,7 @@ public class UserManager {
 		}
 		String result="fail";
 		if( isUserPass(req,username,oldPassword)) {
-			String newPwd = Util.getSHA256HashCode(newPassword.getBytes());
+			String newPwd = FileEncryptUtil.getSHA256HashCode(newPassword.getBytes());
 			User user = new User();
 			user.setUser_name(username);
 			user.setUser_pwd(newPwd);
@@ -217,7 +217,7 @@ public class UserManager {
 			result="\"status\":\"The password is not null.\"";
 			return result;
 		}
-		String encryptPwd = Util.getSHA256HashCode(pwd.getBytes());
+		String encryptPwd = FileEncryptUtil.getSHA256HashCode(pwd.getBytes());
 		User user=new User();
 		user.setUser_name(username);
 		user.setUser_pwd(encryptPwd);

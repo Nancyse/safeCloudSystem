@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN "
+ " http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+ 
+<mapper namespace="com.nancyse.controller.GenericServer.DataModel.DefaultFileMapper">
+	<select id="selectOne" parameterType="com.nancyse.controller.GenericServer.DataModel.DefaultFile" resultType="com.nancyse.controller.GenericServer.DataModel.DefaultFile">
+		select * from Files where file_name=#{file_name} and file_dir=#{file_dir} and file_uploader=#{file_uploader}
+	</select>
+	
+	<insert id="save" parameterType="com.nancyse.controller.GenericServer.DataModel.DefaultFile" >
+		insert into files(file_name,file_hash,file_dir,file_key,file_uploader) values(#{file_name},#{file_hash},#{file_dir},#{file_key},#{file_uploader})
+	</insert>
+	
+</mapper>

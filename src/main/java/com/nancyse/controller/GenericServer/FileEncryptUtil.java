@@ -30,7 +30,7 @@ import org.apache.logging.log4j.Logger;
 
 
 
-public class Util {
+public class FileEncryptUtil {
 	public static Logger logger = LogManager.getLogger("ACS");
 	public static String hostName = "http://localhost:8080";
 	/*
