@@ -5,12 +5,18 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class DateUtil {
-	//获取当前时间
-		public static String  getCurrentTime() {
+		//获取当前时间
+		public static String  getCurrentTimeAsString() {
 			Date currentTime = new Date();
 			SimpleDateFormat formatter = new SimpleDateFormat("yyy-MM-dd");
 			String dateString = formatter.format(currentTime);
 			return dateString;
+		}
+		
+		//获取当前时间
+		public static Date  getCurrentTimeAsDate() {
+			Date currentTime = new Date();
+			return currentTime;
 		}
 		
 		//时间字符串转换为Date

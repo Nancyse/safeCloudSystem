@@ -150,7 +150,7 @@ public class FileUpload2OSS {
 		FileBuffer fb = new FileBuffer();
 		fb.setBufferfile_name(filename);
 		fb.setBufferfile_dir(filepath);
-		fb.setUpdate_time(DateUtil.getCurrentTime());
+		fb.setUpdate_time(DateUtil.getCurrentTimeAsDate());
 		fb.setBufferfile_size(fileLength);
 		fb.setBufferfile_uploader(uploader);
 		String id="FileBufferMapper.save";
@@ -165,13 +165,14 @@ public class FileUpload2OSS {
 		SqlSession sqlSession = sqlSessionFactory.openSession();
 		//sqlSession.selectList(statementId+"FileBufferMapper.countAll");
 		long currentSpace=sqlSession.selectOne(statementId+"FileBufferMapper.countSpace");
+		sqlSession.close();
 		long totalSpace = 1024*1024*1024*30;
 		//long totalSpace=628;
 		if( totalSpace>(currentSpace+filelen) ) {
 			return true;
 		}
 		else
-			return false;
+			return false;		
 	}
 	
 	
