@@ -286,16 +286,22 @@ public class FileEncryptUtil {
 		KeyGenerator keyGenerator=null;
 		Cipher cipher=null;
 		try {
+			//构造密钥生成器，指定为AES算法，不区分大小写
 			keyGenerator = KeyGenerator.getInstance("AES");
 			//keyGenerator.init(128,new SecureRandom(sKey.getBytes()));
+			//初始化密钥生成器
 			SecureRandom secureRandom = SecureRandom.getInstance("SHA1PRNG");
 			secureRandom.setSeed(sKey.getBytes());
 			keyGenerator.init(128,secureRandom);
-			
+			//产生原始对称密钥
 			SecretKey secretKey=keyGenerator.generateKey();
+			//获得原始对称密钥的字节数组
 			byte[] codeFormat = secretKey.getEncoded();
+			//根据字节数组生成AES密钥
 			SecretKeySpec key=new SecretKeySpec(codeFormat,"AES");
-			cipher = Cipher.getInstance("AES");
+			//指定算法AES生成密码器
+			cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+			//初始化密码器，第一个参数为加密/解密操作，第二个参数是使用的key
 			cipher.init(cipherMode, key);
 		}catch(NoSuchAlgorithmException e) {
 			e.printStackTrace();

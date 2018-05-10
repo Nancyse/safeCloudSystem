@@ -17,6 +17,54 @@ import com.aliyun.oss.model.SimplifiedObjectMeta;
  */
 public class OSSManageUtil {
 	
+	
+	/*
+	 * 上传本地文件
+	 */
+	public static void uploadLocalFile(OSSConfig ossConfig, String bucketName, String key, File file) {
+		String endpoint=ossConfig.getEndpoint();
+		String accessKeyId = ossConfig.getAccessKeyId();
+		String accessKeySecret = ossConfig.getAccessKeySecret();
+		//创建OSSClient实例
+		OSSClient ossClient = new OSSClient(endpoint,accessKeyId,accessKeySecret);
+		//上传文件
+		ossClient.putObject(bucketName, key, file);
+		ossClient.shutdown();
+	}
+	
+	
+	/*
+	 * 从OSS下载文件到本地
+	 */
+	public static void downloadFile2Local(OSSConfig ossConfig, String bucketName, String key) {
+		String endpoint = ossConfig.getEndpoint();
+		String accessKeyId = ossConfig.getAccessKeyId();
+		String accessKeySecret = ossConfig.getAccessKeySecret();
+		OSSClient ossClient = new OSSClient(endpoint,accessKeyId,accessKeySecret);
+		String filePath=FilePath.TMPDIR+key;
+		ossClient.getObject(new GetObjectRequest(bucketName,key),new File(filePath));
+		ossClient.shutdown();		
+	}
+	
+	
+	/*
+	 * 删除文件
+	 */
+	public static void deleteFile(OSSConfig ossConfig,String bucketName, String key) throws IOException{
+		//加载配置文件
+		String endpoint = ossConfig.getEndpoint();
+		String accessKeyId = ossConfig.getAccessKeyId();
+		String accessKeySecret = ossConfig.getAccessKeySecret();
+		
+		OSSClient ossClient= new OSSClient(endpoint,accessKeyId,accessKeySecret);
+		ossClient.deleteObject(bucketName, key);
+		ossClient.shutdown();
+	}
+	
+	
+	
+	
+	
 	/*
 	 * 判断文件Object是否存在
 	 */
@@ -57,19 +105,6 @@ public class OSSManageUtil {
 		ossClient.shutdown();
 	}
 	
-	/*
-	 * 上传本地文件
-	 */
-	public static void uploadLocalFile(OSSConfig ossConfig, String bucketName, String key, File file) {
-		String endpoint=ossConfig.getEndpoint();
-		String accessKeyId = ossConfig.getAccessKeyId();
-		String accessKeySecret = ossConfig.getAccessKeySecret();
-		//创建OSSClient实例
-		OSSClient ossClient = new OSSClient(endpoint,accessKeyId,accessKeySecret);
-		//上传文件
-		ossClient.putObject(bucketName, key, file);
-		ossClient.shutdown();
-	}
 	
 	/*
 	 * 上传OSS服务器文件
@@ -125,21 +160,6 @@ public class OSSManageUtil {
 	}
 	
 	
-	/*
-	 * 删除文件
-	 * 根据key删除OSS服务器上的文件 @Title: deleteFile @Description: @param @param 
-     * ossConfigure @param @param filePath 设定文件 @return void 返回类型 @throws 
-     * @throws IOException  
-	 */
-	public static void deleteFile(OSSConfig ossConfig,String bucketName, String key) throws IOException{
-		//加载配置文件
-		String endpoint = ossConfig.getEndpoint();
-		String accessKeyId = ossConfig.getAccessKeyId();
-		String accessKeySecret = ossConfig.getAccessKeySecret();
-		
-		OSSClient ossClient= new OSSClient(endpoint,accessKeyId,accessKeySecret);
-		ossClient.deleteObject(bucketName, key);
-	}
 	
 	
 	

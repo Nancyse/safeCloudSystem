@@ -10,5 +10,15 @@
 	<select id="countSpace" resultType="long">
 		select sum(bufferfile_size) from filebuffer 
 	</select>
+	<select id="selectOne" parameterType="com.nancyse.controller.GenericServer.DataModel.FileBuffer" resultType="com.nancyse.controller.GenericServer.DataModel.FileBuffer">
+		select * from filebuffer where bufferfile_name=#{bufferfile_name} and bufferfile_dir=#{bufferfile_dir} and uploader_name=#{uploader_name}
+	</select>
 	
+	<update id="updateFile" parameterType="com.nancyse.controller.GenericServer.DataModel.FileBuffer">
+		update filebuffer set bufferfile_size=#{bufferfile_size},update_time=#{update_time} where bufferfile_name=#{bufferfile_name} and bufferfile_dir=#{bufferfile_dir} and uploader_name=#{uploader_name}
+	</update>
+	
+	<delete id="deleteFile" parameterType="com.nancyse.controller.GenericServer.DataModel.FileBuffer">
+		delete from filebuffer where bufferfile_name=#{bufferfile_name} and bufferfile_dir=#{bufferfile_dir} and uploader_name=#{uploader_name}
+	</delete>
 </mapper>

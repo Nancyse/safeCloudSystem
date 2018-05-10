@@ -3,7 +3,7 @@ package com.nancyse.controller.GenericServer.DataModel;
 public class DefaultFile {
 	private String file_name;
 	private String file_type;
-	private int file_size;
+	private long file_size;
 	private String file_dir;
 	private String file_hash;
 	private String file_key;
@@ -12,7 +12,7 @@ public class DefaultFile {
 	public DefaultFile() {
 		
 	}
-	public DefaultFile(String name,String type,int size,String dir, String hash,String key,String loader) {
+	public DefaultFile(String name,String type,long size,String dir, String hash,String key,String loader) {
 		this.file_name=name;
 		this.file_type=type;
 		this.file_size=size;
@@ -39,10 +39,10 @@ public class DefaultFile {
 	public void setFile_type(String file_type) {
 		this.file_type = file_type;
 	}
-	public int getFile_size() {
+	public long getFile_size() {
 		return file_size;
 	}
-	public void setFile_size(int file_size) {
+	public void setFile_size(long file_size) {
 		this.file_size = file_size;
 	}
 	public String getFile_hash() {
