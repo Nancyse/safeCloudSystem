@@ -1,4 +1,4 @@
-package com.nancyse.controller.GenericServer;
+package com.nancyse.controller.NewServer;
 
 import java.io.File;
 import java.io.IOException;
@@ -53,7 +53,7 @@ public class FileManager {
 		String bucketName="lps-test";
 		OSSConfig ossConfig;
 		try {
-			ossConfig = new OSSConfig("com/nancyse/controller/GenericServer/config.properties");
+			ossConfig = new OSSConfig(FilePath.CONFIGFILE);
 			OSSManageUtil.deleteFile(ossConfig, bucketName, filePath+filename);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -96,7 +96,7 @@ public class FileManager {
 		File encryptfile = new File(path+File.separator+filename);
 		FileEncryptUtil.encryptFile(rawfileData, encryptfile, fileKey);
 		//更新OSS上的文件
-		OSSConfig ossConfig= new OSSConfig("com/nancyse/controller/GenericServer/config.properties");
+		OSSConfig ossConfig= new OSSConfig(FilePath.CONFIGFILE);
 		String bucketName = "lps-test";
 		String key=filePath+filename;
 		OSSManageUtil.uploadLocalFile(ossConfig, bucketName, key, encryptfile);
@@ -126,7 +126,7 @@ public class FileManager {
 		File encryptfile = new File(path+File.separator+filename);
 		FileEncryptUtil.encryptFile(rawfileData, encryptfile, fileKey);
 		//上传到OSS上
-		OSSConfig ossConfig= new OSSConfig("com/nancyse/controller/GenericServer/config.properties");
+		OSSConfig ossConfig= new OSSConfig(FilePath.CONFIGFILE);
 		String bucketName = "lps-test";
 		String key=filePath+filename;
 		OSSManageUtil.uploadLocalFile(ossConfig, bucketName, key, encryptfile);

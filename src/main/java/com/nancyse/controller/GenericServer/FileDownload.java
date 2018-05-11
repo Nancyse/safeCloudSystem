@@ -11,6 +11,7 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.security.InvalidAlgorithmParameterException;
 import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
@@ -34,7 +35,7 @@ public class FileDownload {
 	public ResponseEntity<byte[]> fileDownload(
 			HttpServletRequest request,
 			@RequestParam("filename") String filename
-			) throws IOException {
+			) throws IOException, Exception {
 		//ªÒµ√Ω‚√‹√‹‘ø
 		String fileKey = getDecryptKey(request,filename);
 		FileEncryptUtil.logger.info("decrypt key:"+fileKey);

@@ -1,4 +1,4 @@
-package com.nancyse.controller.GenericServer;
+package com.nancyse.controller.NewServer;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,6 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.nancyse.controller.GenericServer.DataModel.DefaultFile;
@@ -36,7 +37,7 @@ public class FileDownloadFromOSS {
 	private static SqlSessionFactory sqlSessionFactory=null;
 	static {
 		try {
-			ossConfig =new OSSConfig("com/nancyse/controller/GenericServer/config.properties");
+			ossConfig =new OSSConfig(FilePath.CONFIGFILE);
 			InputStream inputStream = Resources.getResourceAsStream("mybatis-config.xml");
 		    sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
 		}
@@ -51,8 +52,8 @@ public class FileDownloadFromOSS {
 	@RequestMapping(value="/downfile",method=RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<byte[]> downloadFile(HttpServletRequest req, 
-			String filename, 
-			String filePath) throws Exception {
+			@RequestParam("filename") String filename, 
+			@RequestParam("filePath") String filePath) throws Exception {
 		String result="";
 		
 		//判断文件没有在本地缓存

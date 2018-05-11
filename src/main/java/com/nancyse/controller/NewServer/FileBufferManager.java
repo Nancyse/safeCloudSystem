@@ -1,4 +1,4 @@
-package com.nancyse.controller.GenericServer;
+package com.nancyse.controller.NewServer;
 
 import java.io.InputStream;
 

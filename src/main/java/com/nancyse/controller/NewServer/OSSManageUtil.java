@@ -1,4 +1,4 @@
-package com.nancyse.controller.GenericServer;
+package com.nancyse.controller.NewServer;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,6 +11,7 @@ import com.aliyun.oss.model.GetObjectRequest;
 import com.aliyun.oss.model.OSSObject;
 import com.aliyun.oss.model.ObjectMetadata;
 import com.aliyun.oss.model.SimplifiedObjectMeta;
+
 
 /*
  * OSS文件管理的OSSManageUtil工具类
@@ -116,7 +117,7 @@ public class OSSManageUtil {
 		//随机名处理
 		//fileName="lps-test_"+new Date().getTime()+fileName.substring(fileName.lastIndexOf("."));
 		//加载配置文件，初始化OSSClient
-		OSSConfig ossConfig = new OSSConfig("com/nancyse/controller/demo/testOSS/config.properties");
+		OSSConfig ossConfig = new OSSConfig(FilePath.CONFIGFILE);
 		OSSClient ossClient = new OSSClient(ossConfig.getEndpoint(),ossConfig.getAccessKeyId(),ossConfig.getAccessKeySecret());
 		//定义二级目录
 		//String remoteFilePath = remotePath.substring(0, remotePath.length()).replaceAll("\\\\","/")+"/";

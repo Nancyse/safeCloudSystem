@@ -10,6 +10,7 @@ import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.security.InvalidAlgorithmParameterException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -44,7 +45,7 @@ public class FileUpload {
 	public String uploadFile(
 			HttpServletRequest req,
 			@RequestParam("description") String desc,
-			@RequestParam("file") MultipartFile file) throws IOException {
+			@RequestParam("file") MultipartFile file) throws IOException, Exception {
 		
 		if(file.isEmpty()) {
 			return "ÎÄ¼þÎª¿Õ£¡";
