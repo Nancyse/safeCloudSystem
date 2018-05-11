@@ -50,10 +50,11 @@ public class FileBufferManager {
 	//判断是否有缓存空间
 	private static Boolean isCanBufferFile(long filelen) {
 		SqlSession sqlSession = sqlSessionFactory.openSession();
-		//sqlSession.selectList(statementId+"FileBufferMapper.countAll");
 		long currentSpace=sqlSession.selectOne(statementId+"FileBufferMapper.countSpace");
+		System.out.println("当前的空间大小："+(currentSpace+filelen));
 		sqlSession.close();
 		long totalSpace = 1024*1024*1024*30;
+		System.out.println("总空间大小："+totalSpace);
 		//long totalSpace=628;
 		if( totalSpace>(currentSpace+filelen) ) {
 			return true;

@@ -23,7 +23,7 @@ import com.nancyse.controller.GenericServer.FileEncryptUtil;
 import com.nancyse.controller.GenericServer.DataModel.User;
 
 @Controller
-@RequestMapping(value="/management")
+@RequestMapping(value="/gs")
 public class UserManager {
 	
 	private static SqlSession sqlSession=null;
@@ -106,7 +106,7 @@ public class UserManager {
 		String result="fail";
 		//验证用户的账号和密码
 		if( isUserPass(req,username, pwd) ) {
-			result="true";
+			result="success";
 		}
 		String res="{\"status\":\""+result+"\"}";
 		return res;

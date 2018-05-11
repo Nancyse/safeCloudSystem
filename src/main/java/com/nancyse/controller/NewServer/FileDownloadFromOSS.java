@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.ibatis.io.Resources;
@@ -54,6 +55,14 @@ public class FileDownloadFromOSS {
 	public ResponseEntity<byte[]> downloadFile(HttpServletRequest req, 
 			@RequestParam("filename") String filename, 
 			@RequestParam("filePath") String filePath) throws Exception {
+		
+		//判断用户是否已登录
+		HttpSession session = req.getSession();
+		if(session.getAttribute("username")==null) {
+			System.out.println("用户未登录");
+			return null;	
+		}
+		
 		String result="";
 		
 		//判断文件没有在本地缓存

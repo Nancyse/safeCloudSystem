@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Random;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
@@ -42,6 +43,12 @@ public class FileUpload2OSS {
 			@RequestParam("description") String desc,
 			@RequestParam("file") MultipartFile file,
 			@RequestParam("filePath") String filepath) throws Exception {
+
+		//判断用户是否已登录
+		HttpSession session = req.getSession();
+		if(session.getAttribute("username")==null) {
+			return "{\"status\":\"you are not sign in. \"}";	
+		}
 		
 		String result="";
 		//判断文件是否为空
@@ -81,6 +88,12 @@ public class FileUpload2OSS {
 			@RequestParam("filePath") String filePath
 			) throws Exception {
 		
+		//判断用户是否已登录
+		HttpSession session = req.getSession();
+		if(session.getAttribute("username")==null) {
+			return "{\"status\":\"you are not sign in. \"}";	
+		}
+		
 		String result="success";
 		String uploader = "pslin";
 		String filename = file.getOriginalFilename();
@@ -94,6 +107,12 @@ public class FileUpload2OSS {
 	public String deleteFile(HttpServletRequest req,
 			@RequestParam("filePath") String filePath,
 			@RequestParam("filename") String filename) {
+		
+		//判断用户是否已登录
+		HttpSession session = req.getSession();
+		if(session.getAttribute("username")==null) {
+			return "{\"status\":\"you are not sign in. \"}";	
+		}
 		
 		String result="";
 		String uploader ="pslin";
@@ -119,6 +138,13 @@ public class FileUpload2OSS {
 	public String searchFiles(
 			HttpServletRequest req,
 			String word) {
+		
+		//判断用户是否已登录
+		HttpSession session = req.getSession();
+		if(session.getAttribute("username")==null) {
+			return "{\"status\":\"you are not sign in. \"}";	
+		}
+		
 		String result="";
 		String uploader = "pslin";
 		//根据uploader查找所有，然后再根据路径和文件名再进行查找
@@ -135,9 +161,5 @@ public class FileUpload2OSS {
 		result+="]";
 		return "{\"status\":\""+result+"\"}";
 	}
-	
-	
-	
-	
 	
 }
