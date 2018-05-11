@@ -3,6 +3,7 @@ package com.nancyse.controller.GenericServer;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.InvalidAlgorithmParameterException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -68,7 +69,7 @@ public class FileManager {
 	
 	
 	//更新文件
-	public static void updateFile(MultipartFile file,String filePath,String filename,String uploader) throws IllegalStateException, IOException {
+	public static void updateFile(MultipartFile file,String filePath,String filename,String uploader) throws IllegalStateException, IOException, Exception {
 		/*
 		//删除本地文件 
 		File tmp = new File(FilePath.LOCALDIR+filePath+filename);
@@ -104,7 +105,7 @@ public class FileManager {
 	
 	
 	//上传文件到OSS
-	public static void uoloadFile2OSS(MultipartFile file,String filePath,long fileLength) throws IOException {
+	public static void uoloadFile2OSS(MultipartFile file,String filePath,long fileLength) throws IOException, Exception {
 		//生成文件摘要
 		String fileHash=FileEncryptUtil.getSHA256HashCode(file.getBytes());
 		System.out.println("文件摘要："+fileHash);

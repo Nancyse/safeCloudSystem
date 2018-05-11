@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.security.InvalidAlgorithmParameterException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -65,7 +66,7 @@ public class FileDownloadFromOSS {
 	
 	
 	//从OSS下载文件并且解密
-	private void getFileFromOSS(String filePath,String filename,String uploader) {
+	private void getFileFromOSS(String filePath,String filename,String uploader) throws Exception {
 		//从OSS下载
 		String bucketName = "lps-test";
 		String key = filePath+filename;
@@ -80,7 +81,8 @@ public class FileDownloadFromOSS {
 		File file=FileEncryptUtil.decryptFile2(srcFile,decrypfile,fileKey);
 		srcFile.delete();
 		//增加缓存记录
-		
+		long fileLength=decrypfile.length();
+		FileBufferManager.saveBuffer2Database(filename,filePath,fileLength,uploader);
 	}
 	
 	
