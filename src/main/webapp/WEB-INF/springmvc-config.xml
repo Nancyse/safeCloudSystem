@@ -40,11 +40,12 @@
 			<value>/WEB-INF/content/</value>
 		</property>
 		<!-- 后缀 -->
-		<property name="suffix">
+		<!--  <property name="suffix">
 			<value>.jsp</value>
 		</property>
+		-->
 	</bean>
-	
+	<mvc:default-servlet-handler/>
 	
 	<!-- 用于将对象转换为 JSON  -->  
 	<bean id="stringConverter" class="org.springframework.http.converter.StringHttpMessageConverter">  
@@ -64,6 +65,4 @@
 	        </list>  
 	    </property>  
 	</bean>  
-	
-
 </beans>
