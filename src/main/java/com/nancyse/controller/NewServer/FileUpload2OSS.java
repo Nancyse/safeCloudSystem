@@ -27,7 +27,7 @@ import com.nancyse.controller.GenericServer.DataModel.DefaultFile;
 import com.nancyse.controller.GenericServer.DataModel.FileBuffer;
 
 @Controller
-@RequestMapping(value="/gs")
+@RequestMapping(value="/bs")
 public class FileUpload2OSS {
 	
 	//上传文件
@@ -44,31 +44,31 @@ public class FileUpload2OSS {
 			@RequestParam("file") MultipartFile file,
 			@RequestParam("filePath") String filepath) throws Exception {
 
+		int errorCode;
 		//判断用户是否已登录
 		HttpSession session = req.getSession();
 		if(session.getAttribute("username")==null) {
-			return "{\"status\":\"you are not sign in. \"}";	
+			errorCode=-1;
+			return "{\"error_code\":"+errorCode+"}";	
 		}
-		
-		String result="";
+	
 		//判断文件是否为空
 		if(file.isEmpty()) {
-			result="You could not choose a file .";
-			return "{\"satuc\":\""+result+"\"}";
+			errorCode=-2;
+			return "{\"error_code\":"+errorCode+"-2}";
 		}
 		String filename=file.getOriginalFilename();
 		//判断文件是否存在
 		String uploader="pslin";
 		if( FileManager.isFileExist(filename,filepath,uploader)) {//文件存在
-			result="The file is exist,do you want to update it?";
-			
+			errorCode=-3;	
 		}else { //文件不存在，则上传文件
 			long fileLength = FileManager.saveFile2Local(file,filepath); //将文件保存到本地
 			FileBufferManager.saveBuffer2Database(filename,filepath,fileLength,uploader); //将缓存文件记录保存在数据库中
-			FileManager.uoloadFile2OSS(file,filepath,fileLength);
-			result="success";
+			FileManager.uoloadFile2OSS(file,filepath,fileLength,desc);
+			errorCode=0;
 		}	
-		return "{\"status\":\""+result+"\"}";		
+		return "{\"error_code\":"+errorCode+"}";		
 	}
 	
 	
@@ -97,7 +97,7 @@ public class FileUpload2OSS {
 		String result="success";
 		String uploader = "pslin";
 		String filename = file.getOriginalFilename();
-		FileManager.updateFile(file, filePath, filename,uploader);
+		FileManager.updateFile(file, filePath, filename,uploader,desc);
 		return "{\"status\":\""+result+"\"}";	
 	}
 	

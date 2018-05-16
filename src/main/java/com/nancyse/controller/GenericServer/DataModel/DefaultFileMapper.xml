@@ -11,11 +11,11 @@
 	</select>
 	
 	<insert id="save" parameterType="com.nancyse.controller.GenericServer.DataModel.DefaultFile" >
-		insert into files(file_name,file_hash,file_dir,file_key,file_size,file_uploader) values(#{file_name},#{file_hash},#{file_dir},#{file_key},${file_size},#{file_uploader})
+		insert into files(file_name,file_type,file_hash,file_dir,file_key,file_size,file_uploader,file_desc,upload_time) values(#{file_name},#{file_type},#{file_hash},#{file_dir},#{file_key},${file_size},#{file_uploader},#{file_desc},#{upload_time})
 	</insert>
 	
 	<update id="updateFile" parameterType="com.nancyse.controller.GenericServer.DataModel.DefaultFile">
-		update files set file_size=#{file_size},file_hash=#{file_hash},file_key=#{file_key}  where file_name=#{file_name} and file_dir=#{file_dir} and file_uploader=#{file_uploader}
+		update files set file_size=#{file_size},file_hash=#{file_hash},file_key=#{file_key},file_desc=#{file_desc},upload_time=#{upload_time}  where file_name=#{file_name} and file_dir=#{file_dir} and file_uploader=#{file_uploader}
 	</update>
 	
 	<delete id="deleteFile" parameterType="com.nancyse.controller.GenericServer.DataModel.DefaultFile">

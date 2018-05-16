@@ -1,5 +1,7 @@
 package com.nancyse.controller.GenericServer.DataModel;
 
+import java.util.Date;
+
 public class DefaultFile {
 	private String file_name;
 	private String file_type;
@@ -8,9 +10,22 @@ public class DefaultFile {
 	private String file_hash;
 	private String file_key;
 	private String file_uploader;
-	
+	private String file_desc;
+	private Date upload_time;
 	public DefaultFile() {
 		
+	}
+	public String getFile_desc() {
+		return file_desc;
+	}
+	public void setFile_desc(String file_desc) {
+		this.file_desc = file_desc;
+	}
+	public Date getUpload_time() {
+		return upload_time;
+	}
+	public void setUpload_time(Date upload_time) {
+		this.upload_time = upload_time;
 	}
 	public DefaultFile(String name,String type,long size,String dir, String hash,String key,String loader) {
 		this.file_name=name;

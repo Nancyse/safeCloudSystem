@@ -4,7 +4,7 @@
  
  <mapper namespace="com.nancyse.controller.GenericServer.DataModel.UserMapper">
  	<insert id="save" parameterType="com.nancyse.controller.GenericServer.DataModel.User" useGeneratedKeys="true">
- 		Insert into Users(user_name,user_pwd,user_type) values(#{user_name},#{user_pwd},#{user_type})
+ 		Insert into Users(user_name,user_pwd,user_type,user_email,user_space) values(#{user_name},#{user_pwd},#{user_type},#{user_email},#{user_space})
  	</insert>
  	
  	<select id="selectOne" parameterType="String" resultType="com.nancyse.controller.GenericServer.DataModel.User" >
@@ -12,6 +12,12 @@
  	</select>
  	<select id="selectAll"  resultType="com.nancyse.controller.GenericServer.DataModel.User" >
  		Select * from Users 
+ 	</select>
+ 	<select id="selectNames" parameterType="com.nancyse.controller.GenericServer.DataModel.User" resultType="Integer">
+ 		select count(*) from users where user_name like concat("%",#{user_name},"%")
+ 	</select>
+ 	<select id="searchSameEmail" parameterType="String" resultType="java.lang.Integer" >
+ 		Select count(*) from Users where user_email=#{user_email}
  	</select>
  	
  	<update id="updatePwd" parameterType="com.nancyse.controller.GenericServer.DataModel.User">

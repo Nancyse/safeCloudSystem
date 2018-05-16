@@ -65,11 +65,8 @@ public class FileManager {
 	
 	
 	
-	
-	
-	
 	//更新文件
-	public static void updateFile(MultipartFile file,String filePath,String filename,String uploader) throws IllegalStateException, IOException, Exception {
+	public static void updateFile(MultipartFile file,String filePath,String filename,String uploader,String desc) throws IllegalStateException, IOException, Exception {
 		/*
 		//删除本地文件 
 		File tmp = new File(FilePath.LOCALDIR+filePath+filename);
@@ -83,7 +80,7 @@ public class FileManager {
 		String fileKey = createFileKey(fileHash);
 		//更新文件数据库
 		String fileType="txt";
-		FileManager.updateFileData(filePath, fileHash, fileKey, filename, fileLength, fileType, uploader);
+		FileManager.updateFileData(filePath, fileHash, fileKey, filename, fileLength, fileType, uploader,desc);
 		//更新缓存文件数据库
 		FileBufferManager.updateFileData(filePath, filename, uploader, fileLength);
 		//加密文件
@@ -105,7 +102,7 @@ public class FileManager {
 	
 	
 	//上传文件到OSS
-	public static void uoloadFile2OSS(MultipartFile file,String filePath,long fileLength) throws IOException, Exception {
+	public static void uoloadFile2OSS(MultipartFile file,String filePath,long fileLength,String desc) throws IOException, Exception {
 		//生成文件摘要
 		String fileHash=FileEncryptUtil.getSHA256HashCode(file.getBytes());
 		System.out.println("文件摘要："+fileHash);
@@ -115,7 +112,11 @@ public class FileManager {
 		String filename = file.getOriginalFilename();
 		String uploader="pslin";
 		long fileSize = fileLength;
-		saveFileData(fileHash,fileKey,filePath,filename,fileSize,uploader);
+		int index = filename.indexOf('.');
+		String fileType="null";
+		if(index>=0)
+			fileType=filename.substring(filename.indexOf('.')+1);
+		saveFileData(fileHash,fileKey,filePath,filename,fileType,fileSize,uploader,desc);
 		//加密文件
 		String path=FilePath.TMPDIR;
 		byte[] rawfileData=file.getBytes();
@@ -154,7 +155,7 @@ public class FileManager {
 	}
 	
 	//保存文件信息到数据库中
-	public static void saveFileData(String fileHash,String fileKey,String filedir,String filename,long fileSize,String uploader) {
+	public static void saveFileData(String fileHash,String fileKey,String filedir,String filename,String fileType,long fileSize,String uploader,String desc) {
 		DefaultFile df = new DefaultFile();
 		df.setFile_hash(fileHash);
 		df.setFile_key(fileKey);
@@ -162,6 +163,9 @@ public class FileManager {
 		df.setFile_uploader(uploader);
 		df.setFile_dir(filedir);
 		df.setFile_size(fileSize);
+		df.setFile_type(fileType);
+		df.setFile_desc(desc);
+		df.setUpload_time(DateUtil.getCurrentTimeAsDate());
 		SqlSession sqlSession = sqlSessionFactory.openSession();
 		String id=statementId+"DefaultFileMapper.save";
 		sqlSession.insert(id, df);
@@ -171,7 +175,8 @@ public class FileManager {
 	
 	//更新数据库文件信息
 	public static void updateFileData(String file_dir,String file_hash,String file_key,
-			String file_name, long file_size, String file_type,String file_uploader) {
+			String file_name, long file_size, String file_type,String file_uploader,
+			String file_desc) {
 		DefaultFile df = new DefaultFile();
 		df.setFile_dir(file_dir);
 		df.setFile_hash(file_hash);
@@ -181,6 +186,8 @@ public class FileManager {
 		df.setFile_size(file_size);
 		df.setFile_type(file_type);
 		df.setFile_uploader(file_uploader);
+		df.setFile_desc(file_desc);
+		df.setUpload_time(DateUtil.getCurrentTimeAsDate());
 		SqlSession sqlSession  = sqlSessionFactory.openSession();
 		sqlSession.update(statementId+"DefaultFileMapper.updateFile", df);
 		sqlSession.commit();
@@ -241,4 +248,5 @@ public class FileManager {
 		return result==null?false:true;
 	}	
 
+	
 }

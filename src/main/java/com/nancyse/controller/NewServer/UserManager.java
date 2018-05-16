@@ -23,11 +23,11 @@ import com.nancyse.controller.GenericServer.FileEncryptUtil;
 import com.nancyse.controller.GenericServer.DataModel.User;
 
 @Controller
-@RequestMapping(value="/gs")
+@RequestMapping(value="/bs")
 public class UserManager {
 	
 	private static SqlSession sqlSession=null;
-	private final static String statementId="com.nancyse.controller.GenericServer.DataModel.UserMapper";
+	private final static String statementId="com.nancyse.controller.GenericServer.DataModel.";
 	private static SqlSessionFactory sqlSessionFactory=null;
 	static {
 		try {
@@ -45,21 +45,31 @@ public class UserManager {
 	 */
 	@RequestMapping(value="/login",method=RequestMethod.GET)
 	@ResponseBody
-	public String login(HttpServletRequest req,String username,int type) throws Exception {
+	public String login(HttpServletRequest req,
+			@RequestParam("username") String username,
+			@RequestParam("type") int type,
+			@RequestParam("email") String email) throws Exception {
 		
 		//判断用户名是否已注册
-		if( isLogIn(username)) {
+		if( isLogIn(email)) {
 			return "{\"status\":\"User has been registered\"}";
+		}
+		//生成用户名
+		int num = getSameNameNum(username);
+		if(num>0) {
+			num+=1;
+			username=username+num;
 		}
 		//生成默认密码
 		String pwd = "pwd-"+username;
 		//生成加密密码
 		String encryptPwd = FileEncryptUtil.getSHA256HashCode(pwd.getBytes());
-		System.out.println(encryptPwd);	
-		//密码保存到数据库中		
-		User user = new User(username,encryptPwd,type);
+		//生成个人存储空间
+		String userspace=username+"/";
+		//将新用户的信息保存到数据库中	
+		User user = new User(username,encryptPwd,type,email,userspace);
 		sqlSession = sqlSessionFactory.openSession();
-		sqlSession.insert(statementId+".save", user);
+		sqlSession.insert(statementId+"UserMapper.save", user);
 		sqlSession.commit();
 		sqlSession.close();
 		String result="{\"status\":\"success\"}";
@@ -67,11 +77,23 @@ public class UserManager {
 	}
 	
 	
-	//判断用户名是否已被注册过
-	private Boolean isLogIn(String username) {
+	private int getSameNameNum(String username) {
+		// TODO Auto-generated method stub
 		sqlSession = sqlSessionFactory.openSession();
-		User user=sqlSession.selectOne(statementId+".selectOne", username);
-		if(user!=null)
+		User user = new User();
+		user.setUser_name(username);
+		Integer num=sqlSession.selectOne(statementId+"UserMapper.selectNames", user);
+		sqlSession.close();
+		
+		return num;
+	}
+
+
+	//判断用户名是否已被注册过
+	private Boolean isLogIn(String email) {
+		sqlSession = sqlSessionFactory.openSession();
+		int num=sqlSession.selectOne(statementId+"UserMapper.searchSameEmail", email);
+		if(num>0)
 			return true;
 		return false;
 	}
@@ -98,17 +120,16 @@ public class UserManager {
 	public String signIn(HttpServletRequest req,
 			@RequestParam("username")String username,
 			@RequestParam("pwd") String pwd) {
-		
 		//判断用户是否已登录
 		if( isSignIn(req) ) {
-			return "{\"status\":\"User has been logged in.\"}";
+			return "{\"error_code\":1}";
 		}
-		String result="fail";
+		int errorCode=-1;
 		//验证用户的账号和密码
 		if( isUserPass(req,username, pwd) ) {
-			result="success";
+			errorCode=0;
 		}
-		String res="{\"status\":\""+result+"\"}";
+		String res="{\"error_code\":"+errorCode+"}";
 		return res;
 	}
 	
@@ -121,13 +142,13 @@ public class UserManager {
 		}	
 		String encryptPwd = FileEncryptUtil.getSHA256HashCode(pwd.getBytes());
 		sqlSession = sqlSessionFactory.openSession();
-		User user = sqlSession.selectOne(statementId+".selectOne",username);
+		User user = sqlSession.selectOne(statementId+"UserMapper.selectOne",username);
 		Boolean result=false;
 		if( user!=null && encryptPwd.equals(user.getUser_pwd()) ) {
 			HttpSession session = req.getSession();
 			if(session.isNew()) {
 				session.setAttribute("username", username);
-				session.setAttribute("userType", user.user_type);
+				session.setAttribute("userType", user.getUser_type());
 			}
 			result=true;
 		}
@@ -176,7 +197,7 @@ public class UserManager {
 			user.setUser_name(username);
 			user.setUser_pwd(newPwd);
 			sqlSession = sqlSessionFactory.openSession();
-			sqlSession.update(statementId+".updatePwd",user);
+			sqlSession.update(statementId+"UserMapper.updatePwd",user);
 			sqlSession.commit();
 			sqlSession.close();
 			result = "success";
@@ -223,7 +244,7 @@ public class UserManager {
 		user.setUser_name(username);
 		user.setUser_pwd(encryptPwd);
 		sqlSession = sqlSessionFactory.openSession();
-		sqlSession.update(statementId+".updatePwd", user);
+		sqlSession.update(statementId+"UserMapper.updatePwd", user);
 		sqlSession.commit();
 		sqlSession.close();
 		result="\"status\":\"Success.\"";
@@ -252,7 +273,7 @@ public class UserManager {
 		}
 		//从数据库中获取所有用户信息
 		sqlSession = sqlSessionFactory.openSession();
-		List<User> userList = sqlSession.selectList(statementId+".selectAll");
+		List<User> userList = sqlSession.selectList(statementId+"UserMapper.selectAll");
 		ObjectMapper mapper = new ObjectMapper(); 
 		try {
 			result = mapper.writeValueAsString(userList);

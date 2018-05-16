@@ -30,7 +30,7 @@ import com.nancyse.controller.GenericServer.DataModel.DefaultFile;
 import com.nancyse.controller.GenericServer.DataModel.FileBuffer;
 
 @Controller
-@RequestMapping(value="/gs")
+@RequestMapping(value="/bs")
 public class FileDownloadFromOSS {
 	
 	private final static String statementId="com.nancyse.controller.GenericServer.DataModel.";
@@ -61,10 +61,7 @@ public class FileDownloadFromOSS {
 		if(session.getAttribute("username")==null) {
 			System.out.println("用户未登录");
 			return null;	
-		}
-		
-		String result="";
-		
+		}		
 		//判断文件没有在本地缓存
 		String uploader = "pslin";
 		if( ! this.isFileExistInBuffer(filePath, filename, uploader) ) {
