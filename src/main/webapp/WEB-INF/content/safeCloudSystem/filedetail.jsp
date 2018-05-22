@@ -208,7 +208,7 @@
 		</ul>
 		<ul class="logout">
 			<li>
-			<a href="login.html">
+			<a href="logout">
 			<i class="icon-off nav-icon"></i>
 			<span class="nav-text">
 			注销
@@ -251,7 +251,7 @@
 								</a>
 								<ul class="dropdown-menu drp-mnu"> 
 									<li> <a href="persondetail.html"><i class="fa fa-user"></i> 个人信息</a> </li> 
-									<li> <a href="login.html"><i class="fa fa-sign-out"></i> 注销</a> </li>
+									<li> <a href="logout"><i class="fa fa-sign-out"></i> 注销</a> </li>
 								</ul>
 							</li>
 						</ul>

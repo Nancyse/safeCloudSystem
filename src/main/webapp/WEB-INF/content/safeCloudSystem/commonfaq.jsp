@@ -105,7 +105,7 @@
 		</ul>
 		<ul class="logout">
 			<li>
-			<a href="login.html">
+			<a href="logout">
 			<i class="icon-off nav-icon"></i>
 			<span class="nav-text">
 			注销
@@ -123,8 +123,8 @@
 			</a>
 		</nav>
 		<section class="title-bar"  >
-			<div class="logo" style="width:300px;height:1px;">
-				<h1><a href="index.html"><img src="images/logo.png" alt="" />文件云服务</a></h1>
+			<div class="logo" style="width:400px;">
+				<h1><a href="index.html"><img src="../images/logo.png" alt="" />安全文件传输系统</a></h1>
 			</div>
 			<div class="header-right">
 				<div class="profile_details_left">
@@ -140,7 +140,7 @@
 								</a>
 								<ul class="dropdown-menu drp-mnu"> 
 									<li> <a href="persondetail.html"><i class="fa fa-user"></i> 个人信息</a> </li> 
-									<li> <a href="login.html"><i class="fa fa-sign-out"></i> 注销</a> </li>
+									<li> <a href="logout"><i class="fa fa-sign-out"></i> 注销</a> </li>
 								</ul>
 							</li>
 						</ul>

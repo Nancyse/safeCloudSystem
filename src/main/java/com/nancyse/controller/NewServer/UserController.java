@@ -89,14 +89,13 @@ public class UserController {
 	 *注销用户 
 	 */
 	@RequestMapping(value="/logout")
-	@ResponseBody
 	public String logout(HttpServletRequest req) {
 		if( UserManageUtil.isSignIn(req)>0) {  //若用户已登录
 			HttpSession session = req.getSession();			
 			session.invalidate();//注销用户			
 		}		
-		String result="{\"error_code\":0}";
-		return result;
+		//String result="{\"error_code\":0}";
+		return "safeCloudSystem/login.jsp";
 	}
 	
 	

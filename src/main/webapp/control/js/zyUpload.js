@@ -21,6 +21,7 @@
 					itemWidth        : "140px",                     // 文件项的宽度
 					itemHeight       : "120px",                     // 文件项的高度
 					url              : "/safeCloudSystem/bs/fileUpload",  	// 上传文件的路径
+					param			 : null,
 					multiple         : true,  						// 是否可以多个文件上传
 					dragDrop         : true,  						// 是否可以拖动上传文件
 					del              : true,  						// 是否可以删除文件
@@ -364,11 +365,13 @@
 					onFailure: function(file) {
 						$("#uploadProgress_" + file.index).hide();
 						$("#uploadSuccess_" + file.index).show();
-						$("#uploadInf").append("<p>文件" + file.name + "上传失败！</p>");	
+						//$("#uploadInf").append("<p>文件" + file.name + "上传失败！</p>");	
 						//$("#uploadImage_" + file.index).css("opacity", 0.2);
 					},
-					onComplete: function(response){
-						console.info(response);
+					onComplete: function(response){ 
+						console.info(response); 	//全部上传成功
+						
+						
 					},
 					onDragOver: function() {
 						$(this).addClass("upload_drag_hover");

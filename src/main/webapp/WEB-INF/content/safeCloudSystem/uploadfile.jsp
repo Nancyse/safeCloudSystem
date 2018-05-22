@@ -168,7 +168,7 @@ $(function () {
 				
 	</section>
 	
-	<div id="demo" class="demo"></div> 
+	<div id="demo" class="demo" data-param="<%=session.getId()%>"></div> 
 	
 	<script src="<%=basePath%>/js/bootstrap.js"></script>
 	<script src="<%=basePath%>/js/proton.js"></script>

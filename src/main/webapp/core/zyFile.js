@@ -10,7 +10,7 @@ var ZYFILE = {
 		uploadInput : null,           // 上传文件按钮dom对象
 		dragDrop: null,				  //拖拽敏感区域
 		url : "",  					  // 上传action路径
-		
+		param: null,
 		filedescInput:null,				  //文件描述组件
 		filedirInput:null,   			  //文件路径组件
 		filedesc:null,				  //文件秒数，自加
@@ -227,10 +227,12 @@ var ZYFILE = {
 			    		// 从文件中删除上传成功的文件  false是不执行onDelete回调方法
 				    	self.funDeleteFile(file.index, false);
 				    	// 回调到外部
-				    	self.onSuccess(file, xhr.responseText);
+				    	self.onSuccess(file, this.responseText);
 				    	if(self.uploadFile.length==0){
 				    		// 回调全部完成方法
 				    		self.onComplete("全部完成");
+				    		//alert("文件上传成功！");
+							
 				    	}
 				    }, false);  
 				    // 错误
@@ -240,19 +242,20 @@ var ZYFILE = {
 				    }, false);  
 				    
 				  //上传加密文件
-					var url =  "http://localhost//safeCloudSystem/server/uploadStr";
+					var url =  "uploadStr";
 					var formdata = new FormData();	  
 					formdata.append("filePath",self.filedir);
 					formdata.append("filename",file.name);
 					formdata.append("fileData",encryptdata);
-					formdata.append("length",encryptdata.length);					
+					formdata.append("length",encryptdata.length);	
+					formdata.append("JESSIONID",self.param);
 					xhr.open("POST",url, false);
 					//xhr.setRequestHeader("X_FILENAME", file.name);
 					xhr.send(formdata);	
 					
 				    
 				    //上传文件密钥和文件摘要
-				    var url ="http://localhost/safeCloudSystem/server/uploadFileData"; 
+				    var url ="uploadFileData"; 
 					var formdata2 = new FormData();  
 					formdata2.append("description",self.filedesc);
 					formdata2.append("filePath",self.filedir);
