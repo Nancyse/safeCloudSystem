@@ -103,7 +103,7 @@
 			json = eval('('+json+')');
 			//解密文件
 			var rawData = getDAes(encryptData,trimStr(json.fileKey));
-			alert("rawData:"+rawData);
+			//alert("rawData:"+rawData);
 			//计算哈希值
 			var hash = getSha256(rawData);
 			if( json.fileHash != hash){
@@ -226,8 +226,8 @@
 			</a>
 		</nav>
 		<section class="title-bar"  >
-			<div class="logo" style="width:300px;height:1px;">
-				<h1><a href="index.html"><img src="images/logo.png" alt="" />文件云服务</a></h1>
+			<div class="logo" style="width:400px;">
+				<h1><a href="index.html"><img src="../images/logo.png" alt="" />安全文件传输系统</a></h1>
 			</div>
 			<!--
 			<div class="w3l_search">

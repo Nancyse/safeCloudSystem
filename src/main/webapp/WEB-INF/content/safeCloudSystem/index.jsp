@@ -82,7 +82,7 @@
 		
 			
 			<li>
-				<a href="http://localhost/<%=path%>/uploadfile.html?JESSIONID=<%=session.getId() %>">
+				<a href="uploadfile.html?JESSIONID=<%=session.getId() %>">
 					<i class="icon-font nav-icon"></i>
 					<span class="nav-text">
 					上传文件

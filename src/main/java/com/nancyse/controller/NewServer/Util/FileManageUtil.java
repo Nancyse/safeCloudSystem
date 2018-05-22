@@ -171,7 +171,7 @@ public class FileManageUtil {
 		}
 		//将字符串保存到文件中
 		FileWriter fw = new FileWriter(newFile);
-		fw.write(path);
+		fw.write(data);
 		fw.close();
 		return data.length();		
 	} 

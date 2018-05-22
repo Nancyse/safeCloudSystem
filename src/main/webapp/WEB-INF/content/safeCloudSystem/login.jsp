@@ -29,7 +29,7 @@
 				<div class="grids-heading gallery-heading signup-heading">
 					<h2>Login</h2>
 				</div>
-				<form action="index.html" method="post">
+				<form action="signIn" method="post">
 					<input type="text" name="Username" value="Username" onFocus="this.value = '';" onBlur="if (this.value == '') {this.value = 'Username';}">
 					<input type="password" name="Password" value="Password" onFocus="this.value = '';" onBlur="if (this.value == '') {this.value = 'Password';}">
 					<input type="submit" class="register" value="Login">

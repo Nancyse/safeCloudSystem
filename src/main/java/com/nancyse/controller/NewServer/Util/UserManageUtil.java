@@ -1,6 +1,5 @@
 package com.nancyse.controller.NewServer.Util;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
@@ -11,19 +10,10 @@ import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nancyse.controller.GenericServer.FileEncryptUtil;
 import com.nancyse.controller.GenericServer.DataModel.User;
 
-@Controller
-@RequestMapping(value="/bs")
 public class UserManageUtil {
 	
 	private static SqlSession sqlSession=null;
@@ -38,24 +28,14 @@ public class UserManageUtil {
 		}
 	}
 	
-	
-	/*
-	 * 注册用户
-	 * @param 用户名
-	 */
-	@RequestMapping(value="/login",method=RequestMethod.GET)
-	@ResponseBody
-	public String login(HttpServletRequest req,
-			@RequestParam("username") String username,
-			@RequestParam("type") int type,
-			@RequestParam("email") String email) throws Exception {
-		
+	//创建新用户
+	public static int createNewUser( String username,int type,String email) {
 		//判断用户名是否已注册
-		if( isLogIn(email)) {
-			return "{\"status\":\"User has been registered\"}";
+		if( UserManageUtil.isLogIn(email)) {
+			return 1;
 		}
 		//生成用户名
-		int num = getSameNameNum(username);
+		int num = UserManageUtil.countSameNameNum(username);
 		if(num>0) {
 			num+=1;
 			username=username+num;
@@ -65,32 +45,15 @@ public class UserManageUtil {
 		//生成加密密码
 		String encryptPwd = FileEncryptUtil.getSHA256HashCode(pwd.getBytes());
 		//生成个人存储空间
-		String userspace=username+"/";
+		String userspace = username+"/";
 		//将新用户的信息保存到数据库中	
 		User user = new User(username,encryptPwd,type,email,userspace);
-		sqlSession = sqlSessionFactory.openSession();
-		sqlSession.insert(statementId+"UserMapper.save", user);
-		sqlSession.commit();
-		sqlSession.close();
-		String result="{\"status\":\"success\"}";
-		return result;
+		UserManageUtil.saveNewUserData(user);	
+		return 0;
 	}
 	
-	
-	private int getSameNameNum(String username) {
-		// TODO Auto-generated method stub
-		sqlSession = sqlSessionFactory.openSession();
-		User user = new User();
-		user.setUser_name(username);
-		Integer num=sqlSession.selectOne(statementId+"UserMapper.selectNames", user);
-		sqlSession.close();
-		
-		return num;
-	}
-
-
 	//判断用户名是否已被注册过
-	private Boolean isLogIn(String email) {
+	public static Boolean isLogIn(String email) {
 		sqlSession = sqlSessionFactory.openSession();
 		int num=sqlSession.selectOne(statementId+"UserMapper.searchSameEmail", email);
 		if(num>0)
@@ -98,45 +61,39 @@ public class UserManageUtil {
 		return false;
 	}
 	
+	//计算同名的用户名
+	public static int countSameNameNum(String username) {
+		sqlSession = sqlSessionFactory.openSession();
+		User user = new User();
+		user.setUser_name(username);
+		Integer num=sqlSession.selectOne(statementId+"UserMapper.selectNames", user);
+		sqlSession.close();		
+		return num;
+	}
+	
+	//存储新用户信息
+	public static void saveNewUserData(User user) {
+		sqlSession = sqlSessionFactory.openSession();
+		sqlSession.insert(statementId+"UserMapper.save", user);
+		sqlSession.commit();
+		sqlSession.close();		
+	}
+	
 	/*
 	 * 判断用户是否已登录
+	 * @return  -1:未登录  1:普通用户登陆  2:管理员登录
 	 */
-	private Boolean isSignIn(HttpServletRequest req) {
+	public static int isSignIn(HttpServletRequest req) {
 		HttpSession session = req.getSession();
-		if( session.isNew()) {
-			return false;
-		}
-		else {
-			return true;
-		}
+		if( session.isNew() || session.getAttribute("username")==null) {
+			return -1;
+		}			
+		else 
+			return (Integer)session.getAttribute("userType");		
 	}
 	
-	
-	/*
-	 * 用户登录
-	 */
-	@RequestMapping(value="/signIn",method=RequestMethod.GET)
-	@ResponseBody
-	public String signIn(HttpServletRequest req,
-			@RequestParam("username")String username,
-			@RequestParam("pwd") String pwd) {
-		//判断用户是否已登录
-		if( isSignIn(req) ) {
-			return "{\"error_code\":1}";
-		}
-		int errorCode=-1;
-		//验证用户的账号和密码
-		if( isUserPass(req,username, pwd) ) {
-			errorCode=0;
-		}
-		String res="{\"error_code\":"+errorCode+"}";
-		return res;
-	}
-	
-	
-	//验证用户账号和密码
-	private Boolean isUserPass(HttpServletRequest req,String username, String pwd) {
-		
+	//验证用户身份
+	public static Boolean isUserPass(HttpServletRequest req,String username, String pwd) {		
 		if(username=="" || pwd=="") {
 			return false;
 		}	
@@ -146,142 +103,29 @@ public class UserManageUtil {
 		Boolean result=false;
 		if( user!=null && encryptPwd.equals(user.getUser_pwd()) ) {
 			HttpSession session = req.getSession();
-			if(session.isNew()) {
+			if(session.isNew() || session.getAttribute("username")==null) {
 				session.setAttribute("username", username);
 				session.setAttribute("userType", user.getUser_type());
+				session.setAttribute("userSpace", user.getUser_space());
 			}
 			result=true;
 		}
 		return result;
 	}
-	
-	
-	/*
-	 *注销用户 
-	 */
-	@RequestMapping(value="/logout")
-	@ResponseBody
-	public String logout(HttpServletRequest req) {
 		
-		String result="";
-		//判断用户是否已登录
-		HttpSession session = req.getSession();
-		if( session.isNew() ) {
-			result="{\"status\":\"You have not sign in.\"}";
-		}
-		//注销用户
-		session.invalidate();
-		result="{\"status\":\"Now you are sign out.\"}";
-		return result;
-	}
-	
-	
-	/*
-	 * 用户修改密码
-	 */
-	@RequestMapping(value="/updatePasswordByUser",method=RequestMethod.GET)
-	@ResponseBody
-	public String updatePasswordByUser(
-			HttpServletRequest req,
-			@RequestParam("username") String username, 
-			@RequestParam("oldPassword") String oldPassword,
-			@RequestParam("newPassword") String newPassword) {
 		
-		if(!isSignIn(req)) {
-			return "\"status\":\"You have not logged in.\"";
-		}
-		String result="fail";
-		if( isUserPass(req,username,oldPassword)) {
-			String newPwd = FileEncryptUtil.getSHA256HashCode(newPassword.getBytes());
-			User user = new User();
-			user.setUser_name(username);
-			user.setUser_pwd(newPwd);
-			sqlSession = sqlSessionFactory.openSession();
-			sqlSession.update(statementId+"UserMapper.updatePwd",user);
-			sqlSession.commit();
-			sqlSession.close();
-			result = "success";
-		}
-		String res="\"status\":\""+result+"\"";
-		return res;
-	}
-	
-	
-	/*
-	 * 管理员修改密码
-	 */
-	@RequestMapping(value="/updatePasswordByManager")
-	@ResponseBody
-	public String updatePasswordByManager(HttpServletRequest req,
-			@RequestParam("username") String username,
-			@RequestParam("pwd") String pwd) {
-		
-		String result="";
-		if(!isSignIn(req)) {
-			result="\"status\":\"You have not sign in.\"";
-			return result;
-		}
-		
-		HttpSession session = req.getSession();
-		int type=(Integer)session.getAttribute("userType");
-		
-		if(type!=2) {
-			result="\"status\":\"You are not manager.\"";
-			return result;
-		}
-		
-		if( !isLogIn(username)) {
-			result="\"status\":\"Username is not exist.\"";
-			return result;
-		}
-		
-		if( pwd==null || pwd=="") {
-			result="\"status\":\"The password is not null.\"";
-			return result;
-		}
-		String encryptPwd = FileEncryptUtil.getSHA256HashCode(pwd.getBytes());
-		User user=new User();
-		user.setUser_name(username);
-		user.setUser_pwd(encryptPwd);
+	//更新用户密码
+	public static void updateUserPwd(User user) {
 		sqlSession = sqlSessionFactory.openSession();
-		sqlSession.update(statementId+"UserMapper.updatePwd", user);
+		sqlSession.update(statementId+"UserMapper.updatePwd",user);
 		sqlSession.commit();
-		sqlSession.close();
-		result="\"status\":\"Success.\"";
-		return result;		
+		sqlSession.close();		
 	}
 	
-	
-	/*
-	 * 查看所有用户信息
-	 */
-	@RequestMapping(value="/getAllUser")
-	@ResponseBody
-	public String getAllUser(HttpServletRequest req) {
-		String result="";
-		if(!isSignIn(req)) {
-			result="\"status\":\"You have not sign in.\"";
-			return result;
-		}
-		//判断是否是管理员
-		HttpSession session = req.getSession();
-		int type=(Integer)session.getAttribute("userType");
-		
-		if(type!=2) {
-			result="\"status\":\"You are not manager.\"";
-			return result;
-		}
-		//从数据库中获取所有用户信息
+	//获取所有用户信息
+	public static List getAllUserData() {
 		sqlSession = sqlSessionFactory.openSession();
 		List<User> userList = sqlSession.selectList(statementId+"UserMapper.selectAll");
-		ObjectMapper mapper = new ObjectMapper(); 
-		try {
-			result = mapper.writeValueAsString(userList);
-		} catch (JsonProcessingException e) {
-			e.printStackTrace();
-		}
-		return result;
+		return userList;		
 	}
-	
-	
 }

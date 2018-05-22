@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -28,6 +29,7 @@ import com.nancyse.controller.NewServer.Const.OSSConfig;
 import com.nancyse.controller.NewServer.Util.FileBufferManageUtil;
 import com.nancyse.controller.NewServer.Util.FileManageUtil;
 import com.nancyse.controller.NewServer.Util.OSSManageUtil;
+import com.nancyse.controller.NewServer.Util.UserManageUtil;
 
 @CrossOrigin(origins="*")
 @Controller
@@ -36,13 +38,23 @@ public class UploadController {
 	
 	//首页
 	@RequestMapping(value="/index")
-	public String index() {
+	public String index(HttpServletRequest req) {
+		HttpSession session = req.getSession();
+		System.out.println("username:"+session.getAttribute("username"));
+		System.out.println("userType:"+session.getAttribute("userType"));
+		System.out.println("userSpace:"+session.getAttribute("userSpace"));
+		if(UserManageUtil.isSignIn(req) == -1) {  //用户未登录
+			return "safeCloudSystem/login.jsp";
+		}
 		return "safeCloudSystem/index.jsp";
 	}
 	
 	//文件上传
 	@RequestMapping(value="/uploadfile")
-	public String uploadfile() {
+	public String uploadfile(HttpServletRequest req) {
+		if(UserManageUtil.isSignIn(req) == -1) {  //用户未登录
+			return "safeCloudSystem/login.jsp";
+		}
 		return "safeCloudSystem/uploadfile.jsp";
 	}
 	
@@ -55,9 +67,19 @@ public class UploadController {
 			@RequestParam("fileData") String fileData,
 			@RequestParam("length") long length) throws IOException{
 		
+		int errorCode;
+		String  result = "";
+		if(UserManageUtil.isSignIn(req) == -1) {  //用户未登录
+			errorCode = -1;
+			result="{\"error_code\":"+errorCode+"}";
+			return result;
+		}		
+		
+		HttpSession session = req.getSession();
+		String uploader = (String)session.getAttribute("username");
+		String userSpace = (String)session.getAttribute("userSpace");		
+		String key = userSpace+filePath+filename;
 		String bucketName = "lps-test";
-		String key = filePath+filename;
-		String uploader = "pslin";
 		
 		//将加密字符串保存到本地
 		FileManageUtil.saveStr2Local(filename, filePath, fileData);
@@ -65,17 +87,15 @@ public class UploadController {
 		FileBufferManageUtil.saveBuffer2Database(filename, filePath, length, uploader);
 		//将文件传送至OSS
 		OSSConfig ossConfig;		
-		String result="fail";
+		errorCode = -2;
 		try {
 			ossConfig = new OSSConfig(FilePath.CONFIGFILE);
-			OSSManageUtil.uploadString(ossConfig, bucketName, key, fileData);
-			System.out.println("上传成功");			
-			//下载字符串
-			//result = OSSManageUtil.downloadStr(ossConfig, bucketName, key);
-			result="success";
+			OSSManageUtil.uploadString(ossConfig, bucketName, key, fileData); //上传密文到OSS	
+			errorCode = 0;
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		result="{\"error_code\":"+errorCode+"}";
 		return result;
 	}
 	
@@ -91,41 +111,49 @@ public class UploadController {
 			@RequestParam("fileHash") String fileHash,
 			@RequestParam("length") long length) throws IOException{		
 		
-		String uploader = "pslin";
-		//String desc="desc";
+		int errorCode;
+		String  result = "";
+		if(UserManageUtil.isSignIn(req) == -1) {  //用户未登录
+			errorCode = -1;
+			result="{\"error_code\":"+errorCode+"}";
+			return result;
+		}	
+		HttpSession session = req.getSession();		
+		String uploader = (String)session.getAttribute("username");
+		//获取文件类型
 		int index = filename.indexOf('.');
 		String fileType="null";
 		if(index>=0)
 			fileType=filename.substring(filename.indexOf('.')+1);
 		//将文件信息保存至文件表中
-		FileManageUtil.saveFileData(fileHash, fileKey, filePath, filename, fileType, length, uploader, desc);		
-		return "success";
+		FileManageUtil.saveFileData(fileHash, fileKey, filePath, filename, fileType, length, uploader, desc);
+		errorCode = 0;
+		result="{\"error_code\":"+errorCode+"}";
+		return result;
 	}
 	
 
 	//个人信息
 	@RequestMapping(value="/persondetail")
-	public String persondetail() {
+	public String persondetail(HttpServletRequest req) {
+		if(UserManageUtil.isSignIn(req) == -1) {  //用户未登录			
+			return "safeCloudSystem/login.jsp";
+		}	
 		return "safeCloudSystem/persondetail.jsp";
 	}
 	
-	//登录
-	@RequestMapping(value="/login2")
-	public String login() {
-		return "safeCloudSystem/login.jsp";
-	}
-	
-	//文件信息
-	@RequestMapping(value="/filedetail2")
-	public String filedetail2() {
-		return "safeCloudSystem/filedetail.jsp";
-	}
 	
 	//文件信息
 	@RequestMapping(value="/filedetail")
-	public ModelAndView filedetail() {
-		String viewName="safeCloudSystem/filedetail.jsp";
-		String modelName = "fileList";
+	public ModelAndView filedetail(HttpServletRequest req) {
+		ModelAndView mav = new ModelAndView();
+		
+		if(UserManageUtil.isSignIn(req) == -1) {  //用户未登录	
+			mav.setViewName("safeCloudSystem/login.jsp");
+			return mav;
+		}	
+		
+		//获取文件信息
 		List<Map> list = new ArrayList<Map>();
 		List<DefaultFile> fileList = FileManageUtil.getAllFiles();
 		for( DefaultFile f : fileList) {			
@@ -139,9 +167,9 @@ public class UploadController {
 			model.put("file_desc", f.getFile_desc());
 			model.put("upload_time", f.getUpload_time());
 			list.add(model);			
-		}				
-		
-		ModelAndView mav = new ModelAndView();		
+		}		
+		String viewName="safeCloudSystem/filedetail.jsp";
+		String modelName = "fileList";	
 		mav.addObject(modelName, list);
 		mav.setViewName(viewName);
 		return mav;
@@ -153,13 +181,22 @@ public class UploadController {
 	public String downloadFile(HttpServletRequest req,
 			@RequestParam("filePath") String filePath,
 			@RequestParam("filename") String filename) throws IOException {
+
+		int errorCode;
+		if(UserManageUtil.isSignIn(req) == -1) {  //用户未登录	
+			errorCode = -1;
+			return "{\"error_code\":"+errorCode+"}";
+		}	
 		
-		String uploader="pslin";
+		HttpSession session = req.getSession();
+		String uploader=(String)session.getAttribute("username");
+		String userSpace = (String) session.getAttribute("userSpace");
 		String fileData="";
+		
 		//判断文件是否在本地
 		if( !FileBufferManageUtil.hasFile(filePath, filename, uploader) ) {
 			String bucketName = "lps-test";
-			String key = filePath+filename;
+			String key = userSpace+filePath+filename;
 			OSSConfig ossConfig;
 			try {
 				ossConfig = new OSSConfig(FilePath.CONFIGFILE);
@@ -190,6 +227,10 @@ public class UploadController {
 		return fileData;
 	}
 	
+	
+	/*
+	 * 获取文件的哈希值和密钥
+	 */
 	@CrossOrigin(origins="http://localhost")
 	@RequestMapping(value="/getFilehashAndKey",method=RequestMethod.POST)
 	@ResponseBody
@@ -197,17 +238,30 @@ public class UploadController {
 			@RequestParam("filename") String filename,
 			@RequestParam("filePath") String filePath){
 		
-		String uploader="pslin";
-		Map map = FileManageUtil.getFileHashAndKey(filename, filePath, uploader);
+		int errorCode;
+		if(UserManageUtil.isSignIn(req) == -1) {  //用户未登录	
+			errorCode = -1;
+			return "{\"error_code\":"+errorCode+"}";
+		}	
+		
+		HttpSession session = req.getSession();		
+		String uploader=(String)session.getAttribute("username");
+
+		Map map = FileManageUtil.getFileHashAndKey(filename, filePath, uploader); //获取文件哈希值和密钥
 		
 		return "{\"fileHash\":\""+map.get("fileHash")+"\",\"fileKey\":\""+map.get("fileKey")+"\"}";		
 	}
 	
+	
 	//常见问题
 	@RequestMapping(value="/commonfaq")
-	public String commonfaq() {
+	public String commonfaq(HttpServletRequest req) {
+		if(UserManageUtil.isSignIn(req) == -1) {  //用户未登录				
+			return "safeCloudSystem/login.jsp";
+		}	
 		return "safeCloudSystem/commonfaq.jsp";
 	}
+	
 	
 	//测试
 	@RequestMapping(value="/testJS3")
@@ -228,10 +282,8 @@ public class UploadController {
 			@RequestParam("filename") String desc,
 			@RequestParam("filePath") String filePath){		
 		String decryptData="BaDC0p+3yaQrkHEiK4cQ+g==";		
-		return decryptData;
-		
-	}
-	
+		return decryptData;		
+	}	
 	
 	
 }
