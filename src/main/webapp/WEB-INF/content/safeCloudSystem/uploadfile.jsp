@@ -165,11 +165,11 @@ $(function () {
 			</div>
 			<div class="clearfix"> </div>
 		</section>
-		
-		<div id="demo" class="demo"></div>
-		
+				
 	</section>
+	
 	<div id="demo" class="demo"></div> 
+	
 	<script src="<%=basePath%>/js/bootstrap.js"></script>
 	<script src="<%=basePath%>/js/proton.js"></script>
 	

@@ -20,7 +20,7 @@
 					height           : "400px",  					// 宽度
 					itemWidth        : "140px",                     // 文件项的宽度
 					itemHeight       : "120px",                     // 文件项的高度
-					url              : "/upload/UploadAction",  	// 上传文件的路径
+					url              : "/safeCloudSystem/bs/fileUpload",  	// 上传文件的路径
 					multiple         : true,  						// 是否可以多个文件上传
 					dragDrop         : true,  						// 是否可以拖动上传文件
 					del              : true,  						// 是否可以删除文件
@@ -71,6 +71,14 @@
 		            html += '					<div class="upload_btn">开始上传</div>';
 		            html += '				</div>';
 		            html += '			</div>';
+		            
+		            //添加文件描述和指定上传路径
+					html += '			<div class="status_bar">';
+					html += '				添加：文件描述：<input type="text" id="filedesc" name="description" style="height:30px;"/>';
+					html += '				上传的路径：<input type="text" id="filedir" name="filePath" style="height:30px;"/>';
+					html += '			</div>';
+				    //添加文件描述和指定上传路径
+					
 					html += '			<div id="preview" class="upload_preview"></div>';
 					html += '		</div>';
 					html += '		<div class="upload_submit">';
@@ -86,7 +94,7 @@
 					html += '<form id="uploadForm" action="'+para.url+'" method="post" enctype="multipart/form-data">';
 					html += '	<div class="upload_box">';
 					html += '		<div class="upload_main single_main">';
-		            html += '			<div class="status_bar">';
+		            html += '			<div class="status_bar">';	            
 		            html += '				<div id="status_info" class="info">选中0张文件，共0B。</div>';
 		            html += '				<div class="btns">';
 		            html += '					<input id="fileImage" type="file" size="30" name="fileselect[]" '+multiple+'>';
@@ -94,11 +102,19 @@
 		            html += '					<div class="upload_btn">开始上传</div>';
 		            html += '				</div>';
 		            html += '			</div>';
+		            
+		            //添加文件描述和指定上传路径
+					html += '			<div class="status_bar">';
+					html += '				添加：文件描述：<input type="text" id="filedesc" name="description" style="height:30px;"/>';
+					html += '				上传的路径：<input type="text" id="filedir" name="filePath" style="height:30px;"/>';
+					html += '			</div>';
+				    //添加文件描述和指定上传路径
+					
 		            html += '			<div id="preview" class="upload_preview">';
 				    html += '				<div class="add_upload">';
 				    html += '					<a style="height:'+para.itemHeight+';width:'+para.itemWidth+';" title="点击添加文件" id="rapidAddImg" class="add_imgBox" href="javascript:void(0)">';
 				    html += '						<div class="uploadImg" style="width:'+imgWidth+'px">';
-				    html += '							<img class="upload_image" src="control/images/add_img.png" style="width:expression(this.width > '+imgWidth+' ? '+imgWidth+'px : this.width)" />';
+				    html += '							<img class="upload_image" src="../control/images/add_img.png" style="width:expression(this.width > '+imgWidth+' ? '+imgWidth+'px : this.width)" />';
 				    html += '						</div>';
 				    html += '					</a>';
 				    html += '				</div>';
@@ -176,7 +192,7 @@
 				}
 				
 				// 处理不同类型文件代表的图标
-				var fileImgSrc = "control/images/fileType/";
+				var fileImgSrc = "../control/images/fileType/";
 				if(file.type.indexOf("rar") > 0){
 					fileImgSrc = fileImgSrc + "rar.png";
 				}else if(file.type.indexOf("zip") > 0){
@@ -240,6 +256,8 @@
 					uploadInput: $("#fileSubmit").get(0),
 					dragDrop: $("#fileDragArea").get(0),
 					url: $("#uploadForm").attr("action"),
+					filedescInput:$("#filedesc"),
+					filedirInput:$("#filedir"),
 					
 					filterFile: function(files) {
 						// 过滤合格的文件
@@ -334,6 +352,7 @@
 						$("#uploadProgress_" + file.index).hide();
 						$("#uploadSuccess_" + file.index).show();
 						$("#uploadInf").append("<p>上传成功，文件地址是：" + response + "</p>");
+						//alert("上传成功");
 						// 根据配置参数确定隐不隐藏上传成功的文件
 						if(para.finishDel){
 							// 移除效果

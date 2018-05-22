@@ -28,6 +28,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.nancyse.controller.GenericServer.DataModel.DefaultFile;
 import com.nancyse.controller.GenericServer.DataModel.FileBuffer;
+import com.nancyse.controller.NewServer.Const.FilePath;
+import com.nancyse.controller.NewServer.Const.OSSConfig;
+import com.nancyse.controller.NewServer.Util.FileBufferManageUtil;
+import com.nancyse.controller.NewServer.Util.FileEncryptUtil;
+import com.nancyse.controller.NewServer.Util.OSSManageUtil;
 
 @Controller
 @RequestMapping(value="/bs")
@@ -89,7 +94,7 @@ public class FileDownloadFromOSS {
 		srcFile.delete();
 		//Ôö¼Ó»º´æ¼ÇÂ¼
 		long fileLength=decrypfile.length();
-		FileBufferManager.saveBuffer2Database(filename,filePath,fileLength,uploader);
+		FileBufferManageUtil.saveBuffer2Database(filename,filePath,fileLength,uploader);
 	}
 	
 	

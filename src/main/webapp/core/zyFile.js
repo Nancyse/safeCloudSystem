@@ -3,11 +3,19 @@
  * by zhangyan 2014-06-21   QQ : 623585268
 */
 
+document.write("<script language='javascript' src='../CryptoJS/crypto-js.js'></script>");
+
 var ZYFILE = {
 		fileInput : null,             // 选择文件按钮dom对象
 		uploadInput : null,           // 上传文件按钮dom对象
 		dragDrop: null,				  //拖拽敏感区域
 		url : "",  					  // 上传action路径
+		
+		filedescInput:null,				  //文件描述组件
+		filedirInput:null,   			  //文件路径组件
+		filedesc:null,				  //文件秒数，自加
+		filedir:null,				  //文件存放位置，自加
+		
 		uploadFile : [],  			  // 需要上传的文件数组
 		lastUploadFile : [],          // 上一次选择的文件数组，方便继续上传使用
 		perUploadFile : [],           // 存放永久的文件数组，方便删除使用
@@ -34,6 +42,57 @@ var ZYFILE = {
 		onComplete : function(responseInfo){         // 提供给外部获取全部文件上传完成，供外部实现完成效果
 			
 		},
+		
+		
+		//添加的内容
+		createEncryptKey: function (data){
+			var index = Math.round(Math.random()*64);
+			//("index:"+index);
+			var key = data+data.substring(index);
+			return key;
+		},
+		
+		getSha256: function (data){ //sha256加密
+			var hash = CryptoJS.SHA256(data)
+			return CryptoJS.enc.Base64.stringify(hash);
+		},
+		
+		getAesString: function (data,key,iv){//加密
+			var key  = CryptoJS.enc.Utf8.parse(key);
+			var iv   = CryptoJS.enc.Utf8.parse(iv);
+			var encrypted =CryptoJS.AES.encrypt(data,key,
+				{
+					iv:iv,
+					mode:CryptoJS.mode.CBC,
+					padding:CryptoJS.pad.Pkcs7
+				});
+			return encrypted.toString();    //返回的是base64格式的密文
+		},
+		getDAesString: function (encrypted,key,iv){//解密
+			var key  = CryptoJS.enc.Utf8.parse(key);
+			var iv   = CryptoJS.enc.Utf8.parse(iv);
+			var decrypted =CryptoJS.AES.decrypt(encrypted,key,
+				{
+					iv:iv,
+					mode:CryptoJS.mode.CBC,
+					padding:CryptoJS.pad.Pkcs7
+				});
+			return decrypted.toString(CryptoJS.enc.Utf8);     
+		},
+
+		getAES: function (data,key){ //加密
+			var iv   = 'abcdefghabcdefgh';
+			var encrypted =this.getAesString(data,key,iv); //密文
+			var encrypted1 =CryptoJS.enc.Utf8.parse(encrypted);
+			return encrypted;
+		},
+
+		getDAes:function (data,key){//解密
+			var iv   = 'abcdefghabcdefgh';
+			var decryptedStr =this.getDAesString(data,key,iv);
+			return decryptedStr;
+		},
+		//增加的内容
 		
 		/* 内部实现功能方法 */
 		// 获得选中的文件
@@ -145,35 +204,82 @@ var ZYFILE = {
 		funUploadFile : function(file){
 			var self = this;  // 在each中this指向没个v  所以先将this保留
 			
-			var formdata = new FormData();
-			formdata.append("fileList", file);	         		
-			var xhr = new XMLHttpRequest();
-			// 绑定上传事件
-			// 进度
-		    xhr.upload.addEventListener("progress",	 function(e){
-		    	// 回调到外部
-		    	self.onProgress(file, e.loaded, e.total);
-		    }, false); 
-		    // 完成
-		    xhr.addEventListener("load", function(e){
-	    		// 从文件中删除上传成功的文件  false是不执行onDelete回调方法
-		    	self.funDeleteFile(file.index, false);
-		    	// 回调到外部
-		    	self.onSuccess(file, xhr.responseText);
-		    	if(self.uploadFile.length==0){
-		    		// 回调全部完成方法
-		    		self.onComplete("全部完成");
-		    	}
-		    }, false);  
-		    // 错误
-		    xhr.addEventListener("error", function(e){
-		    	// 回调到外部
-		    	self.onFailure(file, xhr.responseText);
-		    }, false);  
+			var reader = new FileReader();//new一个FileReader实例
+            if (/text+/.test(file.type)) {//判断文件类型，是不是text类型
+                reader.onload = function() {
+                	rawdata = this.result ;   //读取文件内容
+                	hash = self.getSha256(rawdata);  //计算文件摘要
+                	key = self.createEncryptKey(hash)  //生成加密密钥
+					encryptdata=self.getAES(rawdata,key); //加密文件                	
+					console.info("encryptdata:"+encryptdata);
+					console.info("key:"+key);
+					console.info("hash:"+hash);
+                	
+					var xhr = new XMLHttpRequest();
+					// 绑定上传事件
+					// 进度
+				    xhr.upload.addEventListener("progress",	 function(e){
+				    	// 回调到外部
+				    	self.onProgress(file, e.loaded, e.total);
+				    }, false); 
+				    // 完成
+				    xhr.addEventListener("load", function(e){
+			    		// 从文件中删除上传成功的文件  false是不执行onDelete回调方法
+				    	self.funDeleteFile(file.index, false);
+				    	// 回调到外部
+				    	self.onSuccess(file, xhr.responseText);
+				    	if(self.uploadFile.length==0){
+				    		// 回调全部完成方法
+				    		self.onComplete("全部完成");
+				    	}
+				    }, false);  
+				    // 错误
+				    xhr.addEventListener("error", function(e){
+				    	// 回调到外部
+				    	self.onFailure(file, xhr.responseText);
+				    }, false);  
+				    
+				  //上传加密文件
+					var url =  "http://localhost//safeCloudSystem/server/uploadStr";
+					var formdata = new FormData();	  
+					formdata.append("filePath",self.filedir);
+					formdata.append("filename",file.name);
+					formdata.append("fileData",encryptdata);
+					formdata.append("length",encryptdata.length);					
+					xhr.open("POST",url, false);
+					//xhr.setRequestHeader("X_FILENAME", file.name);
+					xhr.send(formdata);	
+					
+				    
+				    //上传文件密钥和文件摘要
+				    var url ="http://localhost/safeCloudSystem/server/uploadFileData"; 
+					var formdata2 = new FormData();  
+					formdata2.append("description",self.filedesc);
+					formdata2.append("filePath",self.filedir);
+					formdata2.append("filename",file.name);
+					formdata2.append("fileKey",key);
+					formdata2.append("fileHash",hash);
+					formdata2.append("length",encryptdata.length);						
+					xhr.open("POST",url, false);
+					//xhr.withCredentials = true;
+					//xhr.withCredentials = true; //设置传递cookie，如果不需要直接注释就好
+					//xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest"); //请求头部，需要服务端同时设置
+					//xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+					
+					xhr.send(formdata2);
+				    
+										         
+					//解密文件
+					//window.rawdata = self.getDAes(window.encryptdata,key) ;//解密文件					
+                }
+                reader.readAsText(file);
+            } else if(/image+/.test(file.type)) {//判断文件是不是imgage类型
+                reader.onload = function() {	
+                   // $('body').append('<img src="' + this.result + '"/>');						
+                }
+                reader.readAsDataURL(file);
+            }
 			
-			xhr.open("POST",self.url, true);
-			xhr.setRequestHeader("X_FILENAME", file.name);
-			xhr.send(formdata);
 		},
 		// 返回需要上传的文件
 		funReturnNeedFiles : function(){
@@ -205,6 +311,26 @@ var ZYFILE = {
 					self.funUploadFiles(e); 
 				}, false);	
 			}
+			
+			//如果文件描述组件存在
+			if(self.filedescInput){
+				//绑定blur事件
+				this.filedescInput.blur(function(e){
+					self.filedesc = self.filedescInput.val()
+					console.info("filedesc:"+self.filedesc)
+				}); 
+				
+			}
+			
+			//如果文件路径组件存在
+			if(self.filedirInput){
+				//绑定blur事件
+				this.filedirInput.blur(function(e){
+					self.filedir = self.filedirInput.val()
+					console.info("filedir:"+self.filedesc)
+				}); 
+			}
+			
 		}
 };
 

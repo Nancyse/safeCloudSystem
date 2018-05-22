@@ -1,4 +1,4 @@
-<%@ page language="java" import="java.util.*" pageEncoding="utf-8"%>
+ <%@ page language="java" import="java.util.*" pageEncoding="utf-8" isELIgnored="false"%>
 <%
     String path = request.getContextPath();
     String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
@@ -35,6 +35,8 @@
 <script src="<%=basePath%>/js/modernizr.js"></script>
 <script src="<%=basePath%>/js/jquery.cookie.js"></script>
 <script src="<%=basePath%>/js/screenfull.js"></script>
+<script src="<%=basePath%>/FileSaver/FileSaver.js" charset="utf-8"></script>
+<script src="<%=basePath%>/CryptoJS/crypto-js.js"></script> 
 <script>
 	$(function () {
 		$('#supported').text('Supported/allowed: ' + !!screenfull.enabled);
@@ -48,6 +50,79 @@
 		});	
 	});
 </script>
+<script>		
+		//去掉字符串首位空格
+		function trimStr(str){return str.replace(/(^\s*)|(\s*$)/g,"");}
+		
+		function getSha256(data){ //sha256加密
+			var hash = CryptoJS.SHA256(data)
+			return CryptoJS.enc.Base64.stringify(hash);
+		}
+		
+		function getDAesString(encrypted,key,iv){//解密
+			console.info("key:"+key+"\niv:"+iv);
+			var key  = CryptoJS.enc.Utf8.parse(key);
+			var iv   = CryptoJS.enc.Utf8.parse(iv);
+			var decrypted =CryptoJS.AES.decrypt(encrypted,key,
+				{
+					iv:iv,
+					mode:CryptoJS.mode.CBC,
+					padding:CryptoJS.pad.Pkcs7
+				});
+			return decrypted.toString(CryptoJS.enc.Utf8);     
+		}
+		
+		function getDAes(data,key){//解密
+			var iv   = 'abcdefghabcdefgh';
+			var decryptedStr =getDAesString(data,key,iv);
+			return decryptedStr;
+		}
+		
+		
+		
+		//用户下载文件
+		function downloadFile(filename,fileDir){			
+			var formdata = new FormData();	  
+			formdata.append("filename",filename);
+			formdata.append("filePath",fileDir);
+			//获取加密的文件
+			var xhr = new XMLHttpRequest();
+			var url="downloadfile";
+			xhr.open("POST",url, false);  //同步请求
+			xhr.send(formdata);
+			var encryptData = xhr.responseText;
+			
+			//获取文件加密的密钥和摘要
+			url="http://localhost/safeCloudSystem/server/getFilehashAndKey";
+			xhr.open("POST",url, false);
+			//xhr.withCredentials = true; //设置传递cookie，如果不需要直接注释就好
+			//xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest"); //请求头部，需要服务端同时设置
+			//xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+			xhr.send(formdata);	
+			var json = xhr.responseText;
+			json = eval('('+json+')');
+			//解密文件
+			var rawData = getDAes(encryptData,trimStr(json.fileKey));
+			alert("rawData:"+rawData);
+			//计算哈希值
+			var hash = getSha256(rawData);
+			if( json.fileHash != hash){
+				alert("注意！文件被篡改了！");
+			}else{
+				//将数据保存到本地文件
+				var file = new Blob([rawData], {type: "text/plain;charset=utf-8"});
+			    saveAs(file, filename);
+			}
+			
+		}
+		
+		//var filename = "testuploadStr.txt";
+		//var fileDir = "test_dir/";
+		
+		//downloadFile(filename,fileDir);	   
+
+</script>
+	
 <!-- tables -->
 <link rel="stylesheet" type="text/css" href="<%=basePath%>/css/table-style.css" />
 <link rel="stylesheet" type="text/css" href="<%=basePath%>/css/basictable.css" />
@@ -252,125 +327,17 @@
 						<tbody>
 						  <tr>
 							<td>1</td>
-							<td>test1.txt</td>
-							<td>txt</td>
-							<td>10</td>
-							<td>test_dir/</td>
-							<td>2018-05-10</td>
-							<td>pslin</td>
-							 <td> <a class="btn btn-sm btn-success" href="add.html"><span class="icon-download"></span> 下载</a> 
+							<td> ${fileList.get(0).file_name } </td>
+							<td>${fileList.get(0).file_type }</td>
+							<td>${fileList.get(0).file_size }</td>
+							<td>${fileList.get(0).file_dir }</td>
+							<td>${fileList.get(0).upload_time }</td>
+							<td>${fileList.get(0).file_uploader }</td>
+							 <td> <a class="btn btn-sm btn-success" href='javascript:void(0)' onclick=downloadFile('${fileList.get(0).file_name }','${fileList.get(0).file_dir}')><span class="icon-download"></span> 下载</a> 
 							 <a class="btn btn-sm btn-primary" href="add.html"><span class="icon-edit"></span> 更新</a>
 							 <a class="btn btn-danger btn-sm" href="javascript:void(0)" onclick="return del(1,1,1)"><span class="icon-trash"></span> 删除</a> </td>
 						  </tr>
-						  <tr>
-							<td>2</td>
-							<td>test2.txt</td>
-							<td>txt</td>
-							<td>0.1</td>
-							<td>test_dir/</td>
-							<td>2018-05-10</td>
-							<td>pslin</td>
-							 <td> <a class="btn btn-sm btn-success" href="add.html"><span class="icon-download"></span> 下载</a> 
-							 <a class="btn btn-sm btn-primary" href="add.html"><span class="icon-edit"></span> 更新</a>
-							 <a class="btn btn-danger btn-sm" href="javascript:void(0)" onclick="return del(1,1,1)"><span class="icon-trash"></span> 删除</a> </td>
-						  </tr>
-						  <tr>
-							<td>3</td>
-							<td>test3.txt</td>
-							<td>txt</td>
-							<td>0.20</td>
-							<td>test_dir/</td>
-							<td>2018-05-10</td>
-							<td>pslin</td>
-							 <td> <a class="btn btn-sm btn-success" href="add.html"><span class="icon-download"></span> 下载</a> 
-							 <a class="btn btn-sm btn-primary" href="add.html"><span class="icon-edit"></span> 更新</a>
-							 <a class="btn btn-danger btn-sm" href="javascript:void(0)" onclick="return del(1,1,1)"><span class="icon-trash"></span> 删除</a> </td>
-						  </tr>
-						  <tr>
-							<td>4</td>
-							<td>test4.txt</td>
-							<td>txt</td>
-							<td>1.0</td>
-							<td>test_dir/</td>
-							<td>2018-05-10</td>
-							<td>pslin</td>
-							 <td> <a class="btn btn-sm btn-success" href="add.html"><span class="icon-download"></span> 下载</a> 
-							 <a class="btn btn-sm btn-primary" href="add.html"><span class="icon-edit"></span> 更新</a>
-							 <a class="btn btn-danger btn-sm" href="javascript:void(0)" onclick="return del(1,1,1)"><span class="icon-trash"></span> 删除</a> </td>
-						  </tr>
-						  <tr>
-							<td>5</td>
-							<td>test5.txt</td>
-							<td>txt</td>
-							<td>1.23</td>
-							<td>test_dir/</td>
-							<td>2018-05-10</td>
-							<td>pslin</td>
-							 <td> <a class="btn btn-sm btn-success" href="add.html"><span class="icon-download"></span> 下载</a> 
-							 <a class="btn btn-sm btn-primary" href="add.html"><span class="icon-edit"></span> 更新</a>
-							 <a class="btn btn-danger btn-sm" href="javascript:void(0)" onclick="return del(1,1,1)"><span class="icon-trash"></span> 删除</a> </td>
-						  </tr>
-						  <tr>
-							<td>6</td>
-							<td>test5.txt</td>
-							<td>txt</td>
-							<td>2.31</td>
-							<td>test_dir/</td>
-							<td>2018-05-10</td>
-							<td>pslin</td>
-							 <td> <a class="btn btn-sm btn-success" href="add.html"><span class="icon-download"></span> 下载</a> 
-							 <a class="btn btn-sm btn-primary" href="add.html"><span class="icon-edit"></span> 更新</a>
-							 <a class="btn btn-danger btn-sm" href="javascript:void(0)" onclick="return del(1,1,1)"><span class="icon-trash"></span> 删除</a> </td>
-						  </tr>
-						  <tr>
-							<td>7</td>
-							<td>test7.txt</td>
-							<td>txt</td>
-							<td>4.20</td>
-							<td>test_dir/</td>
-							<td>2018-05-10</td>
-							<td>pslin</td>
-							 <td> <a class="btn btn-sm btn-success" href="add.html"><span class="icon-download"></span> 下载</a> 
-							 <a class="btn btn-sm btn-primary" href="add.html"><span class="icon-edit"></span> 更新</a>
-							 <a class="btn btn-danger btn-sm" href="javascript:void(0)" onclick="return del(1,1,1)"><span class="icon-trash"></span> 删除</a> </td>
-						  </tr>
-						 <tr>
-							<td>8</td>
-							<td>test8.txt</td>
-							<td>txt</td>
-							<td>0.32</td>
-							<td>test_dir/</td>
-							<td>2018-05-10</td>
-							<td>pslin</td>
-							 <td> <a class="btn btn-sm btn-success" href="add.html"><span class="icon-download"></span> 下载</a> 
-							 <a class="btn btn-sm btn-primary" href="add.html"><span class="icon-edit"></span> 更新</a>
-							 <a class="btn btn-danger btn-sm" href="javascript:void(0)" onclick="return del(1,1,1)"><span class="icon-trash"></span> 删除</a> </td>
-						  </tr>
-						  <tr>
-							<td>9</td>
-							<td>test9.txt</td>
-							<td>txt</td>
-							<td>2.90</td>
-							<td>test_dir/</td>
-							<td>2018-05-10</td>
-							<td>pslin</td>
-							 <td> <a class="btn btn-sm btn-success" href="add.html"><span class="icon-download"></span> 下载</a> 
-							 <a class="btn btn-sm btn-primary" href="add.html"><span class="icon-edit"></span> 更新</a>
-							 <a class="btn btn-danger btn-sm" href="javascript:void(0)" onclick="return del(1,1,1)"><span class="icon-trash"></span> 删除</a> </td>
-						  </tr>
-						  <tr>
-							<td>10</td>
-							<td>test10.txt</td>
-							<td>txt</td>
-							<td>1.56</td>
-							<td>test_dir/</td>
-							<td>2018-05-10</td>
-							<td>pslin</td>
-							 <td> <a class="btn btn-sm btn-success" href="add.html"><span class="icon-download"></span> 下载</a> 
-							 <a class="btn btn-sm btn-primary" href="add.html"><span class="icon-edit"></span> 更新</a>
-							 <a class="btn btn-danger btn-sm" href="javascript:void(0)" onclick="return del(1,1,1)"><span class="icon-trash"></span> 删除</a> </td>
-						  </tr>
-						  
+						  						  
 						
 						  <tr align="center">
 							<td colspan="8" align="center">
@@ -395,6 +362,7 @@
 		</div>
 		
 	</section>
+	
 	<script src="<%=basePath%>/js/bootstrap.js"></script>
 	<script src="<%=basePath%>/js/proton.js"></script>
 	

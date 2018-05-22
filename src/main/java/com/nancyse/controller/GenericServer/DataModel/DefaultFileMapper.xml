@@ -9,6 +9,12 @@
 	<select id="findFile" parameterType="String" resultType="com.nancyse.controller.GenericServer.DataModel.DefaultFile">
 		select * from Files where file_uploader=#{file_uploader}
 	</select>
+	<select id="getAllFile" resultType="com.nancyse.controller.GenericServer.DataModel.DefaultFile">
+		select * from Files order by file_id desc
+	</select>	
+	<select id="getFileHashAndKey" parameterType="com.nancyse.controller.GenericServer.DataModel.DefaultFile" resultType="com.nancyse.controller.GenericServer.DataModel.DefaultFile">
+		select * from Files where file_name=#{file_name} and file_dir=#{file_dir} and file_uploader=#{file_uploader}
+	</select>
 	
 	<insert id="save" parameterType="com.nancyse.controller.GenericServer.DataModel.DefaultFile" >
 		insert into files(file_name,file_type,file_hash,file_dir,file_key,file_size,file_uploader,file_desc,upload_time) values(#{file_name},#{file_type},#{file_hash},#{file_dir},#{file_key},${file_size},#{file_uploader},#{file_desc},#{upload_time})
