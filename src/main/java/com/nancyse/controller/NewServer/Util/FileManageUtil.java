@@ -217,7 +217,7 @@ public class FileManageUtil {
 	}
 		
 	//删除单个数据库文件
-	private static void deleteFileData(String filename,String filePath,String uploader) {
+	public static void deleteFileData(String filename,String filePath,String uploader) {
 		DefaultFile df = new DefaultFile();
 		df.setFile_dir(filePath);
 		df.setFile_name(filename);
@@ -233,9 +233,19 @@ public class FileManageUtil {
 		SqlSession sqlSession = sqlSessionFactory.openSession();
 		List<DefaultFile> dfList = sqlSession.selectList(statementId+"DefaultFileMapper.getAllFile");
 		sqlSession.close();
-		return dfList;
-		
+		return dfList;		
 	}
+	
+	//返回当前用户所有的文件
+	public static List<DefaultFile> getUserAllFiles(String uploader) {
+		SqlSession sqlSession = sqlSessionFactory.openSession();
+		DefaultFile df = new DefaultFile();
+		df.setFile_uploader(uploader);
+		List<DefaultFile> dfList = sqlSession.selectList(statementId+"DefaultFileMapper.getUserAllFile",df);
+		sqlSession.close();
+		return dfList;		
+	}
+	
 	//查找文件
 	public static List findFile(String uploader,String word) {
 		SqlSession sqlSession = sqlSessionFactory.openSession();
@@ -269,6 +279,14 @@ public class FileManageUtil {
 		
 	}
 	
+	//获取文件类型
+	public static String getFileType(String filename) {
+		int index = filename.indexOf('.');
+		String fileType="null";
+		if(index>=0)
+			fileType=filename.substring(filename.indexOf('.')+1);
+		return fileType;
+	}
 	
 	//生成文件加密密钥
 	public static  String createFileKey(String fileHash) {

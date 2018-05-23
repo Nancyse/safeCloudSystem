@@ -163,24 +163,25 @@
 								<div class="form-title">
 									<h4>个人信息 :</h4>
 								</div>
-								<div class="form-body">
+								<form class="form-body" action="updatePasswordByUser" method="POST">
+									
 									<div class="form-group"> 
-											<label for="exampleInputEmail1">用户名： </label> 
-											<label for="exampleInputEmail1">pslin</label>
+											<label for="exampleInputEmail1">用户名： </label>											
+											<input type="text" name="username" value="pslin" />
 									</div> 
 									<div class="form-group"> 
-											<label for="exampleInputEmail1">&nbsp;&nbsp;&nbsp;&nbsp;邮箱：  </label> 
-											<label for="exampleInputEmail1">pslin@stu.edu.cn</label>
+											<label for="exampleInputEmail1">&nbsp;&nbsp;&nbsp;&nbsp;旧密码：  </label> 
+											<input type="password" name="oldPassword"/>
 									</div>
 									<div class="form-group"> 
-											<label for="exampleInputEmail1">&nbsp;&nbsp;&nbsp;&nbsp;类型：  </label> 
-											<label for="exampleInputEmail1">普通用户</label>
+											<label for="exampleInputEmail1">&nbsp;&nbsp;&nbsp;&nbsp;新密码：  </label> 
+											<input type="password" name="newPassword"/>
 									</div>
 									
 									<br>
-									<a class="btn btn-info" href="changePassword"> 修改密码</a>
+									<input type="submit" class="btn btn-info" value="提交"/>
 									
-								</div>
+								</form>
 							</div>
 						</div>
 					</div>

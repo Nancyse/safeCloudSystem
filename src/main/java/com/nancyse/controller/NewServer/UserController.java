@@ -102,7 +102,7 @@ public class UserController {
 	/*
 	 * ”√ªß–ﬁ∏ƒ√‹¬Î
 	 */
-	@RequestMapping(value="/updatePasswordByUser",method=RequestMethod.GET)
+	@RequestMapping(value="/updatePasswordByUser",method=RequestMethod.POST)
 	@ResponseBody
 	public String updatePasswordByUser(
 			HttpServletRequest req,

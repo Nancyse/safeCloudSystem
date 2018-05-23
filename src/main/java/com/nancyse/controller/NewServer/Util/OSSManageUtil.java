@@ -38,7 +38,7 @@ public class OSSManageUtil {
 		ossClient.shutdown();
 	}
 	
-	/*上传字符串到OSS上*/
+	/*上传密文到OSS上*/
 	public static void uploadString(OSSConfig ossConfig,String bucketName, String key,String str) {
 		String endpoint = ossConfig.getEndpoint();
 		String accessKeyId = ossConfig.getAccessKeyId();

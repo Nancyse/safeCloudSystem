@@ -49,7 +49,7 @@ public class UploadController {
 		return "safeCloudSystem/index.jsp";
 	}
 	
-	//文件上传
+	//文件上传入口
 	@RequestMapping(value="/uploadfile")
 	public String uploadfile(HttpServletRequest req) {
 		if(UserManageUtil.isSignIn(req) == -1) {  //用户未登录
@@ -58,14 +58,14 @@ public class UploadController {
 		return "safeCloudSystem/uploadfile.jsp";
 	}
 	
-	//上传文件字符串
+	//上传文件密文
 	@RequestMapping(value="/uploadStr",method=RequestMethod.POST)
 	@ResponseBody
 	public String uploadEncryptStr(HttpServletRequest req,
 			@RequestParam("filePath") String filePath,
 			@RequestParam("filename") String filename,
 			@RequestParam("fileData") String fileData,
-			@RequestParam("length") long length) throws IOException{
+			@RequestParam("length") long length ) throws IOException{
 		
 		int errorCode;
 		String  result = "";
@@ -73,13 +73,20 @@ public class UploadController {
 			errorCode = -1;
 			result="{\"error_code\":"+errorCode+"}";
 			return result;
-		}		
-		
+		}
 		HttpSession session = req.getSession();
 		String uploader = (String)session.getAttribute("username");
 		String userSpace = (String)session.getAttribute("userSpace");		
 		String key = userSpace+filePath+filename;
-		String bucketName = "lps-test";
+		int userType = (Integer) session.getAttribute("userType");
+		String bucketName = "lps-test";		
+		
+		//文件是否存在
+		if( FileManageUtil.isFileExist(filename, filePath, uploader)) { //文件已存在
+			errorCode = -2;
+			result="{\"error_code\":"+errorCode+"}";
+			return result;
+		}
 		
 		//将加密字符串保存到本地
 		FileManageUtil.saveStr2Local(filename, filePath, fileData);
@@ -87,7 +94,7 @@ public class UploadController {
 		FileBufferManageUtil.saveBuffer2Database(filename, filePath, length, uploader);
 		//将文件传送至OSS
 		OSSConfig ossConfig;		
-		errorCode = -2;
+		errorCode = -3;
 		try {
 			ossConfig = new OSSConfig(FilePath.CONFIGFILE);
 			OSSManageUtil.uploadString(ossConfig, bucketName, key, fileData); //上传密文到OSS	
@@ -120,11 +127,16 @@ public class UploadController {
 		}	
 		HttpSession session = req.getSession();		
 		String uploader = (String)session.getAttribute("username");
-		//获取文件类型
-		int index = filename.indexOf('.');
-		String fileType="null";
-		if(index>=0)
-			fileType=filename.substring(filename.indexOf('.')+1);
+		
+		//判断文件是否存在
+		if( FileManageUtil.isFileExist(filename, filePath, uploader)) { //文件已存在
+			errorCode = 1;
+			result="{\"error_code\":"+errorCode+"}";
+			return result;
+		}
+				
+		//获取文件类型		
+		String fileType = FileManageUtil.getFileType(filename);
 		//将文件信息保存至文件表中
 		FileManageUtil.saveFileData(fileHash, fileKey, filePath, filename, fileType, length, uploader, desc);
 		errorCode = 0;
@@ -132,7 +144,146 @@ public class UploadController {
 		return result;
 	}
 	
+	
+	//更新文件密文	
+	@RequestMapping(value="/updateStr",method=RequestMethod.POST)
+	@ResponseBody
+	public String updateEncryptStr(HttpServletRequest req,
+			@RequestParam("filePath") String filePath,
+			@RequestParam("filename") String filename,
+			@RequestParam("fileData") String fileData,
+			@RequestParam("length") long length,
+			@RequestParam(value="uploader") String uploader) throws IOException{
+		
+		System.out.println("更新文件密文");
+		int errorCode=0;
+		
+		if( UserManageUtil.isSignIn(req)<0) { //用户未登录
+			errorCode = -1;
+		}
+		
+		HttpSession session = req.getSession();
+		String username = (String)session.getAttribute("username");  //当前登录的用户
+		String userSpace = (String) session.getAttribute("userSpace");
+		String key = userSpace+filePath+filename;
+		int userType = (Integer) session.getAttribute("userType"); //当前用户类型
+		String bucketName = "lps-test";		
+		 
+		if( userType == 2 || uploader == username) {
+		//if (true) {
+			//文件密文保存到本地文件
+			FileManageUtil.saveStr2Local(filename, filePath, fileData);			
+			//更新缓存数据库
+			FileBufferManageUtil.updateFileData(filePath, filename, uploader, length);
+			//更新OSS上的文件
+			OSSConfig ossConfig;		
+			errorCode = -3;
+			try {
+				ossConfig = new OSSConfig(FilePath.CONFIGFILE);
+				OSSManageUtil.uploadString(ossConfig, bucketName, key, fileData); //上传密文到OSS	
+				errorCode = 0;
+				System.out.println("上传成功");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}			
+		}
+		else {
+			errorCode = -2;
+		}		
+		
+		
+		String result="{\"error_code\":"+errorCode+"}";
+		return result;
+	}
+	
+	
+	//更新文件元数据
+	@RequestMapping(value="/updateFileData",method=RequestMethod.POST)
+	@ResponseBody
+	public String updateFile(HttpServletRequest req,
+			@RequestParam(value="description",required=false) String desc,
+			@RequestParam("filePath") String filePath,
+			@RequestParam("filename") String filename,
+			@RequestParam("fileKey") String fileKey,
+			@RequestParam("fileHash") String fileHash,
+			@RequestParam("length") long length,
+			@RequestParam("uploader") String uploader) throws IOException{
+		
+		System.out.println("更新元数据");
+		int errorCode=0;
+		if( UserManageUtil.isSignIn(req)<0) { //用户未登录
+			errorCode = -1;
+		}
+		HttpSession session = req.getSession();
+		String username = (String)session.getAttribute("username");  //当前登录的用户
+		int type = (Integer) session.getAttribute("userType");  //当前用户类型
+		if( type == 2 || uploader == username) { //当前用户是管理员  或者 当前用户是原文件的上传者
+				
+			String fileType = FileManageUtil.getFileType(filename);  //获取文件类型	
+			//更新文件信息
+			FileManageUtil.updateFileData(filePath, fileHash, fileKey, filename, length, fileType, uploader, desc);
+			System.out.println("更新元数据成功");
+		}
+		else {
+			errorCode = -2;
+		}
+		String res="{\"error_code\":"+errorCode+"}";
+		return res;
+	}
 
+	
+	//删除文件密文
+	@RequestMapping(value="/deleteFile",method=RequestMethod.POST)
+	@ResponseBody
+	public String deleteFile(HttpServletRequest req,			
+			@RequestParam("filePath") String filePath,
+			@RequestParam("filename") String filename,			
+			@RequestParam("uploader") String uploader) {
+		System.out.print("开始删除密文文件");
+		int errorCode = 0;		
+		if( UserManageUtil.isSignIn(req)<0) { //用户未登录
+			errorCode = -1;
+			return "{\"error_code\":"+errorCode+"}";
+		}
+		
+		HttpSession session = req.getSession();
+		String username = (String)session.getAttribute("username");
+		String userSpace = (String ) session.getAttribute("userSpace");
+		int userType = (Integer) session.getAttribute("userType");
+		if(userType==2 || username == uploader) {
+			if( FileManageUtil.isFileExist(filename, filePath, uploader) ) { //如果文件存在
+				//删除本地文件
+				File file = new File(FilePath.LOCALDIR+userSpace+filePath+filename);				
+				file.delete();
+				//删除缓存记录
+				FileBufferManageUtil.deleteFileData(filename, filePath, uploader);
+				//删除文件记录
+				FileManageUtil.deleteFileData(filename, filePath, uploader);
+				//删除OSS上的文件
+				String bucketName="lps-test";
+				String key = userSpace+filePath+filename;
+				OSSConfig ossConfig;
+				try {
+					ossConfig = new OSSConfig(FilePath.CONFIGFILE);					
+					OSSManageUtil.deleteFile(ossConfig, bucketName, key);
+				} catch (IOException e) {
+					e.printStackTrace();
+					
+				}
+				errorCode=0;
+				System.out.print("删除成功");
+				
+			}
+			else {
+				errorCode = -2;
+			}
+		}
+				
+		return "{\"error_code\":"+errorCode+"}";
+		
+	}
+	
+	
 	//个人信息
 	@RequestMapping(value="/persondetail")
 	public String persondetail(HttpServletRequest req) {
@@ -145,7 +296,7 @@ public class UploadController {
 	
 	//文件信息
 	@RequestMapping(value="/filedetail")
-	public ModelAndView filedetail(HttpServletRequest req) {
+	public ModelAndView getFiledetail(HttpServletRequest req) {
 		ModelAndView mav = new ModelAndView();
 		
 		if(UserManageUtil.isSignIn(req) == -1) {  //用户未登录	
@@ -153,9 +304,21 @@ public class UploadController {
 			return mav;
 		}	
 		
+		HttpSession session = req.getSession();
+		int userType = (Integer)session.getAttribute("userType");
+		String uploader = (String) session.getAttribute("username");
+		
 		//获取文件信息
 		List<Map> list = new ArrayList<Map>();
-		List<DefaultFile> fileList = FileManageUtil.getAllFiles();
+		List<DefaultFile> fileList=null;
+		
+		if(userType == 2) { //当前用户为管理员
+			fileList = FileManageUtil.getAllFiles();
+		}
+		else { //当前用户为普通用户
+			fileList = FileManageUtil.getUserAllFiles(uploader);
+		}
+			
 		for( DefaultFile f : fileList) {			
 			Map<String,Object> model = new HashMap<String,Object>();
 			model.put("file_name",f.getFile_name() );			
@@ -168,10 +331,28 @@ public class UploadController {
 			model.put("upload_time", f.getUpload_time());
 			list.add(model);			
 		}		
-		String viewName="safeCloudSystem/filedetail.jsp";
+		String viewName="safeCloudSystem/filedetail.jsp";  //真实用
+		//String viewName="safeCloudSystem/testForEach.jsp";//测试用
 		String modelName = "fileList";	
 		mav.addObject(modelName, list);
 		mav.setViewName(viewName);
+		return mav;
+	}
+	
+	//查找文件
+	@RequestMapping(value="/searchFile",method=RequestMethod.POST)
+	public ModelAndView searchFile(HttpServletRequest req,
+			@RequestParam(value="minNum",required=false) int minNum,
+			@RequestParam(value="maxNum",required=false) int maxNum,
+			@RequestParam(value="dirKeyword",required=false) String dirKeyword,
+			@RequestParam(value="fileType",required=false) String fileType,
+			@RequestParam(value="keywords",required=false) String keyword) {
+		
+		ModelAndView mav = new ModelAndView();
+		
+		String viewName = "safeCloudSystem/filedetail.jsp";
+		mav.setViewName(viewName);
+		System.out.println("查找成功");
 		return mav;
 	}
 	
@@ -260,6 +441,24 @@ public class UploadController {
 			return "safeCloudSystem/login.jsp";
 		}	
 		return "safeCloudSystem/commonfaq.jsp";
+	}
+	
+	//需改密码
+	@RequestMapping(value="/changePassword")
+	public String changePassword(HttpServletRequest req) {
+		if(UserManageUtil.isSignIn(req) == -1) {  //用户未登录				
+			return "safeCloudSystem/login.jsp";
+		}	
+		return "safeCloudSystem/changePassword.jsp";
+	}
+	
+	//需改密码
+	@RequestMapping(value="/sys-filemanage")
+	public String sysFileManage(HttpServletRequest req) {
+		if(UserManageUtil.isSignIn(req) == -1) {  //用户未登录				
+			return "safeCloudSystem/login.jsp";
+		}	
+		return "safeCloudSystem/sys-filemanage.jsp";
 	}
 	
 	

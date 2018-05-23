@@ -243,18 +243,28 @@
 		
 			
 			<li>
-				<a href="uploadfile.html">
-					<i class="icon-font nav-icon"></i>
+				<a href="sys-filemanage.html">
+					<i class="fa fa-file-text-o nav-icon"></i>
 					<span class="nav-text">
-					上传文件
+					文件管理
 					</span>
 				</a>
 			</li>
-			<li>
-				<a href="filedetail.html">
-					<i class="icon-table nav-icon"></i>
+			
+			<li >
+				<a href="sys-dirsmanage.html">
+					<i class="fa fa-book nav-icon"></i>
 					<span class="nav-text">
-					文件信息
+					目录管理
+					</span>
+				</a>
+			</li>
+			
+			<li >
+				<a href="sys-usermanage.html">
+					<i class="fa fa-user nav-icon"></i>
+					<span class="nav-text">
+					用户管理
 					</span>
 				</a>
 			</li>
@@ -298,7 +308,7 @@
 		</nav>
 		<section class="title-bar"  >
 			<div class="logo" style="width:400px;">
-				<h1><a href="index.html"><img src="../images/logo.png" alt="" />安全文件传输系统</a></h1>
+				<h1><a href="index.html"><img src="../images/logo.png" alt="" />后台管理系统</a></h1>
 			</div>
 			<!--
 			<div class="w3l_search">
