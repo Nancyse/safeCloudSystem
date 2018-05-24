@@ -239,7 +239,8 @@ public class UploadController {
 			@RequestParam("filePath") String filePath,
 			@RequestParam("filename") String filename,			
 			@RequestParam("uploader") String uploader) {
-		System.out.print("开始删除密文文件");
+		
+		System.out.println("开始删除密文文件");
 		int errorCode = 0;		
 		if( UserManageUtil.isSignIn(req)<0) { //用户未登录
 			errorCode = -1;
@@ -250,8 +251,13 @@ public class UploadController {
 		String username = (String)session.getAttribute("username");
 		String userSpace = (String ) session.getAttribute("userSpace");
 		int userType = (Integer) session.getAttribute("userType");
-		if(userType==2 || username == uploader) {
+		System.out.println("username:"+username);
+		System.out.println("uploader:"+uploader);
+		
+		if(userType==2 || username.equals(uploader) ) {
+			System.out.println("用户开始删除密文文件");
 			if( FileManageUtil.isFileExist(filename, filePath, uploader) ) { //如果文件存在
+				System.out.print("文件存在");
 				//删除本地文件
 				File file = new File(FilePath.LOCALDIR+userSpace+filePath+filename);				
 				file.delete();
@@ -276,6 +282,7 @@ public class UploadController {
 			}
 			else {
 				errorCode = -2;
+				System.out.print("文件不存在");
 			}
 		}
 				
@@ -294,10 +301,14 @@ public class UploadController {
 	}
 	
 	
-	//文件信息
+	//所有文件信息
 	@RequestMapping(value="/filedetail")
-	public ModelAndView getFiledetail(HttpServletRequest req) {
+	public ModelAndView getFiledetail(HttpServletRequest req,
+			@RequestParam(value="page",defaultValue="1")String page) {
 		ModelAndView mav = new ModelAndView();
+		
+		int startRow=0,pageSize=10, pageTimes=1;
+		startRow = (Integer.parseInt(page)-1)*pageSize;	
 		
 		if(UserManageUtil.isSignIn(req) == -1) {  //用户未登录	
 			mav.setViewName("safeCloudSystem/login.jsp");
@@ -313,10 +324,14 @@ public class UploadController {
 		List<DefaultFile> fileList=null;
 		
 		if(userType == 2) { //当前用户为管理员
-			fileList = FileManageUtil.getAllFiles();
+			List<DefaultFile> fl = FileManageUtil.getAllFiles();
+			pageTimes = fl.size()/pageSize+1;
+			fileList = FileManageUtil.getAllFilesByPage(startRow, pageSize);
 		}
 		else { //当前用户为普通用户
-			fileList = FileManageUtil.getUserAllFiles(uploader);
+			List<DefaultFile> fl = FileManageUtil.getUserAllFiles(uploader);
+			pageTimes = fl.size()/pageSize+1;
+			fileList = FileManageUtil.getUserFilesByPage(uploader, startRow, pageSize);
 		}
 			
 		for( DefaultFile f : fileList) {			
@@ -335,22 +350,85 @@ public class UploadController {
 		//String viewName="safeCloudSystem/testForEach.jsp";//测试用
 		String modelName = "fileList";	
 		mav.addObject(modelName, list);
+		mav.addObject("currentPage", Integer.parseInt(page));		
+		mav.addObject("pageTimes", pageTimes);
 		mav.setViewName(viewName);
+		
 		return mav;
 	}
 	
 	//查找文件
 	@RequestMapping(value="/searchFile",method=RequestMethod.POST)
 	public ModelAndView searchFile(HttpServletRequest req,
-			@RequestParam(value="minNum",required=false) int minNum,
-			@RequestParam(value="maxNum",required=false) int maxNum,
-			@RequestParam(value="dirKeyword",required=false) String dirKeyword,
-			@RequestParam(value="fileType",required=false) String fileType,
-			@RequestParam(value="keywords",required=false) String keyword) {
+			@RequestParam(value="minNum",defaultValue="0") int minNum,
+			@RequestParam(value="maxNum",defaultValue="0") int maxNum,
+			@RequestParam(value="dirKeyword",defaultValue="#") String dirKeyword,
+			@RequestParam(value="fileType",defaultValue="#") int fileTypeIndex,
+			@RequestParam(value="keywords",defaultValue="#") String keyword,
+			@RequestParam(value="page",defaultValue="1")String page) {
 		
-		ModelAndView mav = new ModelAndView();
 		
-		String viewName = "safeCloudSystem/filedetail.jsp";
+		ModelAndView mav = new ModelAndView();		
+		if(UserManageUtil.isSignIn(req) == -1) {  //用户未登录	
+			mav.setViewName("safeCloudSystem/login.jsp");
+			return mav;
+		}			
+		
+		HttpSession session = req.getSession();
+		int userType = (Integer)session.getAttribute("userType");
+		String uploader = (String) session.getAttribute("username");
+		
+		int startRow=0,pageSize=10, pageTimes=1;
+		startRow = (Integer.parseInt(page)-1)*pageSize;	
+		String fileType="txt";
+		//获取文件信息
+		List<Map> list = new ArrayList<Map>();
+		List<DefaultFile> fileList=new ArrayList<DefaultFile>();
+		
+		if(userType == 2) { //当前用户为管理员
+			List<DefaultFile> fl = FileManageUtil.getAllFiles();
+			
+			pageTimes = fl.size()/pageSize+1;
+			fileList = FileManageUtil.getAllFilesByPage(startRow, pageSize);
+		}
+		else { //当前用户为普通用户
+			if(fileTypeIndex==1) {
+				fileType="txt";
+			}
+			else if(fileTypeIndex==2){
+				fileType="pdf";				
+			}
+			List<DefaultFile> fl = FileManageUtil.findFileWithWord(minNum, maxNum, fileType, dirKeyword, uploader, keyword);
+					
+			pageTimes = fl.size()/pageSize+1;
+			for( int i=startRow; i<fl.size() && i< startRow+pageSize;i++) {
+				fileList.add(fl.get(i));
+			}			
+		}
+			
+		for( DefaultFile f : fileList) {			
+			Map<String,Object> model = new HashMap<String,Object>();
+			model.put("file_name",f.getFile_name() );			
+			model.put("file_type", f.getFile_type());
+			model.put("file_size", f.getFile_size());
+			model.put("file_dir",f.getFile_dir());
+			model.put("file_hash", f.getFile_hash());
+			model.put("file_uploader", f.getFile_uploader());
+			model.put("file_desc", f.getFile_desc());
+			model.put("upload_time", f.getUpload_time());
+			System.out.println("file_size:"+f.getFile_size());
+			list.add(model);			
+		}		
+		String viewName="safeCloudSystem/filedetail.jsp";  //真实用
+		//String viewName="safeCloudSystem/testForEach.jsp";//测试用
+		String modelName = "fileList";	
+		mav.addObject(modelName, list);
+		mav.addObject("currentPage", Integer.parseInt(page));		
+		mav.addObject("pageTimes", pageTimes);
+		mav.setViewName(viewName);
+		
+		int currentPage = Integer.parseInt(page);
+		
 		mav.setViewName(viewName);
 		System.out.println("查找成功");
 		return mav;

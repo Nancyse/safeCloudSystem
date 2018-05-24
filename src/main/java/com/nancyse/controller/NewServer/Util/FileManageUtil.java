@@ -236,6 +236,30 @@ public class FileManageUtil {
 		return dfList;		
 	}
 	
+	//普通用户根据开始页数和行数返回文件
+	public static List<DefaultFile> getUserFilesByPage(String uploader,int startRow,int pageSize) {
+		Map<String,Object> map = new HashMap<String,Object>();
+		
+		map.put("uploader", uploader);
+		map.put("startRow", startRow);
+		map.put("pageSize", pageSize);
+		SqlSession sqlSession = sqlSessionFactory.openSession();
+		List<DefaultFile> dfList = sqlSession.selectList(statementId+"DefaultFileMapper.getUserFilesByPage",map);
+		sqlSession.close();
+		return dfList;		
+	}
+	
+	//管理员根据开始页数和行数返回文件
+	public static List<DefaultFile> getAllFilesByPage(int startRow,int pageSize) {
+		Map<String,Object> map = new HashMap<String,Object>();		
+		map.put("startRow", startRow);
+		map.put("pageSize", pageSize);
+		SqlSession sqlSession = sqlSessionFactory.openSession();
+		List<DefaultFile> dfList = sqlSession.selectList(statementId+"DefaultFileMapper.getAllFilesByPage",map);
+		sqlSession.close();
+		return dfList;		
+	}
+	
 	//返回当前用户所有的文件
 	public static List<DefaultFile> getUserAllFiles(String uploader) {
 		SqlSession sqlSession = sqlSessionFactory.openSession();
@@ -256,6 +280,51 @@ public class FileManageUtil {
 			if( filePath.indexOf(word)>=0) {
 				resList.add(df);
 			}
+		}
+		sqlSession.close();
+		return resList;
+	}
+	
+	//查找文件
+	public static List findFileWithWord(long minNum,long maxNum,String fileType,String fileDir,String uploader,String word) {
+		System.out.println("minNum:"+minNum);
+		System.out.println("maxNum:"+maxNum);
+		System.out.println("fileType:"+fileType);
+		System.out.println("fileDir:"+fileDir);
+		System.out.println("uploader:"+uploader);
+		System.out.println("word:"+word);
+		SqlSession sqlSession = sqlSessionFactory.openSession();
+		DefaultFile tempdf = new DefaultFile();
+		tempdf.setFile_uploader(uploader);
+		List<DefaultFile> dfList = sqlSession.selectList(statementId+"DefaultFileMapper.findFile", tempdf);
+		List<DefaultFile> resList=new ArrayList<DefaultFile>();
+		int i=1;
+		for(DefaultFile df:dfList) {
+			if(df.getFile_size()>minNum && df.getFile_size()<maxNum) {	
+				System.out.println("add by size:"+df.getFile_size());
+				resList.add(df);							
+			}else if(df.getFile_type().indexOf(fileType)>=0) {
+				System.out.println("add by type:"+df.getFile_type());
+				resList.add(df);
+				
+			}else if(fileDir!="#") {
+				
+				if(df.getFile_dir().indexOf(fileDir)>=0) {
+					System.out.println("add by fileDir:"+df.getFile_dir());
+					resList.add(df);
+				}
+					
+			}else {
+				if(word!="#") {
+					System.out.println("add by word:"+df.getFile_dir()+df.getFile_name());
+					String filePath = df.getFile_dir()+df.getFile_name();
+					if( filePath.indexOf(word)>=0) {
+						resList.add(df);					
+					}
+				}
+				
+			}
+			
 		}
 		sqlSession.close();
 		return resList;

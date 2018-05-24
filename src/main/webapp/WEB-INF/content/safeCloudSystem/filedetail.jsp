@@ -120,7 +120,9 @@
 			var formdata = new FormData();	  
 			formdata.append("filename",filename);
 			formdata.append("filePath",fileDir);
-			formdata.append("uploader",uploader);			
+			formdata.append("uploader",uploader);
+			formdata.append("JESSIONID",window.sess);
+			
 			var xhr = new XMLHttpRequest();
 			var url="deleteFile";
 			xhr.open("POST",url, false);  //同步请求
@@ -355,36 +357,52 @@
 					  
 					    <table id="table" data-session="<%=session.getId() %>">
 						<div style="height:40px;border-bottom:2px solid #EBEBEB;">
-						
+								<form action="searchFile" method="POST">
 								搜索：
-								文件大小&nbsp;<input type="number" placeholder="最小值" id="minNum" class="input" style="width:80px; line-height:17px;display:inline-block" />
+								文件大小&nbsp;<input type="number" placeholder="最小值" name="minNum" id="minNum" class="input" style="width:80px; line-height:17px;display:inline-block" />
 								- 
-								  <input type="number" placeholder="最大值"  id="maxNum" class="input" style="width:80px; line-height:17px;display:inline-block" />
+								  <input type="number" placeholder="最大值" name="maxNum" id="maxNum" class="input" style="width:80px; line-height:17px;display:inline-block" />
 								  &nbsp;&nbsp;
 								  文件路径
-								  &nbsp;<input type="text" placeholder="请输入文件路径"  id="dirKeyword" class="input" style="width:120px; line-height:17px;display:inline-block" /> 
+								  &nbsp;<input type="text" placeholder="请输入文件路径" name="dirKeyword" id="dirKeyword" class="input" style="width:120px; line-height:17px;display:inline-block" /> 
 								  &nbsp;&nbsp;
 								  文件类型
-								  <select id="fileType_id" class="input" onchange="changesearch()"  style="width:60px; line-height:17px;display:inline-block">
-									<option value="">选择</option>
-									<option value="1">pdf</option>
-									<option value="2">txt</option>
+								  <select id="fileType_id" name="fileType" class="input" onchange="changesearch()"  style="width:60px; line-height:17px;display:inline-block">
+									<option value="1">txt</option>
+									<option value="2">pdf</option>
 									<option value="3">zip</option>
 									<option value="4">jpg</option>
 									<option value="5">doc</option>
 								  </select>
 							
-								  <input type="text" placeholder="请输入文件名关键字" id="keywords" class="input" style="width:250px; line-height:17px;display:inline-block" />
+								  <input type="text" name="keywords" placeholder="请输入文件名关键字" id="keywords" class="input" style="width:250px; line-height:17px;display:inline-block" />
 								 <!-- <a href="javascript:void(0)" class="button border-main icon-search" onclick="changesearch()" > 搜索</a></li>-->
-								 <a href="#" class="btn btn-info btn-sm " onclick="searchFile()"><span class="icon-search"></span></a>
+								 <input type="submit" class="btn btn-info btn-sm " value="搜索"></span></a>
+								</form>
 								
 								&nbsp;&nbsp;&nbsp;&nbsp;
-								<a href="">上一页</a> 
-								<span >1</span> 
-								<a href="">2</a> 
-								<a href="">3</a> 
-								<a href="">下一页</a>
-								<a href="">尾页</a> 
+								<c:if test="${currentPage == 1 }">
+									 <span class="disabled"><< 前一页</span>    
+								</c:if>
+								<c:if test="${currentPage != 1 }">
+									 <a href="filedetail?page=${currentPage-1 }"><< 前一页</span>    
+								</c:if>
+																
+						        <span >${currentPage }</span>      
+							    
+								<c:forEach var="i" begin="${currentPage }" end="${pageTimes }">
+									
+							        <c:if test="${i != currentPage}">
+							             <a href="filedetail?page=${i}">${i}</a>
+							        </c:if>
+							        
+								</c:forEach>								
+						        <c:if test="${currentPage < pageTimes}">
+						        	<a href="filedetail?page=${currentPage+1}">后一页 >></a>
+						        </c:if> 
+						        <c:if test="${currentPage == pageTimes}">
+						            	<span class="disabled">后一页 >></span>        
+						      	</c:if>
 								</td>									
 						</div>
 						
@@ -535,12 +553,28 @@
 						
 						  <tr align="center">
 							<td colspan="8" align="center">
-							<a href="">上一页</a> 
-							<span >1</span> 
-							<a href="">2</a> 
-							<a href="">3</a> 
-							<a href="">下一页</a>
-							<a href="">尾页</a> 
+							<c:if test="${currentPage == 1 }">
+									 <span class="disabled"><< 前一页</span>    
+								</c:if>
+								<c:if test="${currentPage != 1 }">
+									 <a href="filedetail?page=${currentPage-1 }"><< 前一页</span>    
+								</c:if>
+																
+						        <span >${currentPage }</span>      
+							    
+								<c:forEach var="i" begin="${currentPage }" end="${pageTimes }">
+									
+							        <c:if test="${i != currentPage}">
+							             <a href="filedetail?page=${i}">${i}</a>
+							        </c:if>
+							        
+								</c:forEach>								
+						        <c:if test="${currentPage < pageTimes}">
+						        	<a href="filedetail?page=${currentPage+1}">后一页 >></a>
+						        </c:if> 
+						        <c:if test="${currentPage == pageTimes}">
+						            	<span class="disabled">后一页 >></span>        
+						      	</c:if>
 							</td>
 						  </tr>
 						  

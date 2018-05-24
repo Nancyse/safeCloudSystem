@@ -6,7 +6,7 @@
 	<select id="selectOne" parameterType="com.nancyse.controller.GenericServer.DataModel.DefaultFile" resultType="com.nancyse.controller.GenericServer.DataModel.DefaultFile">
 		select * from Files where file_name=#{file_name} and file_dir=#{file_dir} and file_uploader=#{file_uploader}
 	</select>
-	<select id="findFile" parameterType="String" resultType="com.nancyse.controller.GenericServer.DataModel.DefaultFile">
+	<select id="findFile" parameterType="com.nancyse.controller.GenericServer.DataModel.DefaultFile" resultType="com.nancyse.controller.GenericServer.DataModel.DefaultFile">
 		select * from Files where file_uploader=#{file_uploader}
 	</select>
 	<select id="getAllFile" resultType="com.nancyse.controller.GenericServer.DataModel.DefaultFile">
@@ -17,6 +17,12 @@
 	</select>
 	<select id="getFileHashAndKey" parameterType="com.nancyse.controller.GenericServer.DataModel.DefaultFile" resultType="com.nancyse.controller.GenericServer.DataModel.DefaultFile">
 		select * from Files where file_name=#{file_name} and file_dir=#{file_dir} and file_uploader=#{file_uploader}
+	</select>
+	<select id="getUserFilesByPage" parameterType="java.util.Map"  resultType="com.nancyse.controller.GenericServer.DataModel.DefaultFile">
+		select * from Files where  file_uploader=#{uploader} order by file_id desc limit #{startRow},#{pageSize}
+	</select>
+	<select id="getAllFilesByPage" parameterType="java.util.Map"  resultType="com.nancyse.controller.GenericServer.DataModel.DefaultFile">
+		select * from Files order by file_id desc limit #{startRow},#{pageSize}
 	</select>
 	
 	<insert id="save" parameterType="com.nancyse.controller.GenericServer.DataModel.DefaultFile" >
