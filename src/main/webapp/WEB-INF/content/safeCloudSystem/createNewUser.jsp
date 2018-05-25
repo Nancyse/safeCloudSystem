@@ -65,34 +65,33 @@
 					</span>
 				</a>
 			</li>
-			
-		
-			
 			<li>
-				<a href="uploadfile.html">
-					<i class="icon-font nav-icon"></i>
+				<a href="sys-filemanage.html">
+					<i class="fa fa-file-text-o nav-icon"></i>
 					<span class="nav-text">
-					上传文件
-					</span>
-				</a>
-			</li>
-			<li>
-				<a href="filedetail.html">
-					<i class="icon-table nav-icon"></i>
-					<span class="nav-text">
-					文件信息
+					文件管理
 					</span>
 				</a>
 			</li>
 			
 			<li >
-				<a href="persondetail.html">
-					<i class="fa fa-check-square-o nav_icon"></i>
+				<a href="sys-dirsmanage.html">
+					<i class="fa fa-book nav-icon"></i>
 					<span class="nav-text">
-					个人信息
+					目录管理
 					</span>
 				</a>
 			</li>
+			
+			<li >
+				<a href="sys-usermanage.html">
+					<i class="fa fa-user nav-icon"></i>
+					<span class="nav-text">
+					用户管理
+					</span>
+				</a>
+			</li>
+			
 			
 			
 			<li class="has-subnav">
@@ -165,7 +164,7 @@
 						<div class="forms">
 							<div class="form-grids widget-shadow" data-example-id="basic-forms"> 
 								<div class="form-title">
-									<h4>个人信息 :</h4>
+									<h4>修改个人信息 :</h4>
 								</div>
 								<form class="form-body" action="NewUser" method="POST">
 									

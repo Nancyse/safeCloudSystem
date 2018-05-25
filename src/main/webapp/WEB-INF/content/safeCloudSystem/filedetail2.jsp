@@ -129,19 +129,7 @@
 			xhr.send(formdata);
 		}
 		
-		//更改文件
-		function updateFiles(filename,fileDir,uploader){			
-			var formdata = new FormData();	  
-			formdata.append("filename",filename);
-			formdata.append("filePath",fileDir);
-			formdata.append("uploader",uploader);
-			formdata.append("JESSIONID",window.sess);
-			
-			var xhr = new XMLHttpRequest();
-			var url="updateFileIndex";
-			xhr.open("POST",url, false);  //同步请求
-			xhr.send(formdata);
-		}
+		
 		
 		//搜索文件
 		function searchFile(){
@@ -445,48 +433,11 @@
 						  		<td><c:out value="${file.file_dir }"/></td>
 						  		<td><c:out value="${file.upload_time }"/></td>
 						  		<td><c:out value="${file.file_uploader }"/></td>
-						  		<td>
-						  			
-						  			<a class="btn btn-sm btn-success" href='javascript:void(0)' onclick="downloadFile('${file.file_name }','${file.file_dir}')"><span class="icon-download"></span> 下载</a> 
-							  	
+						  		<td> <a class="btn btn-sm btn-success" href='javascript:void(0)' onclick="downloadFile('${file.file_name }','${file.file_dir}')"><span class="icon-download"></span> 下载</a> 
 							  		<!-- <a class="btn btn-sm btn-primary" href="add.html"><span class="icon-edit"></span> 更新</a>  --> 
-							  		
-							 		<!--<a class="btn btn-sm btn-primary" href="#loginmodal${num }" id="modaltrigger${num}" onclick="updateFiles('${file.file_name }','${file.file_dir}','${file.file_uploader}')"><span class="icon-edit"></span> 更新</a>-->
-							 		
-							 		
-							 		<form  action="updateFileIndex" method="POST">
-							 			<input type="hidden" name="filename"  value="${file.file_name }"/>
-										<input type="hidden" name="filePath" value="${file.file_dir }"/>
-										<input type="hidden" name="uploader" value="${file.file_uploader }"/>
-										<button type="submit" class="btn btn-sm btn-primary" ><span class="icon-edit"></span> 更新</button>										
-							 		</form>	
-							 								 		
-		
-							 		
+							 		<a class="btn btn-sm btn-primary" href="#loginmodal${num }" id="modaltrigger${num}" onclick="updateFile('#modaltrigger${num}')"><span class="icon-edit"></span> 更新</a>
 								 	<a class="btn btn-danger btn-sm" href="javascript:void(0)" onclick="deleteFile('${file.file_name }','${file.file_dir}','${file.file_uploader}')"><span class="icon-trash"></span> 删除</a>
-									
-								</td>
-								 <div id="loginmodal${num }" style="display:none;">
-									<h3>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;请选择文件</h3><br>
-									<form id="loginform${num }" name="updateform" method="post" action="filedetail.html">									
-				
-										<label>文件描述:</label><br>
-										<input type="text" name="description" id="desc${num }"  class="txtfield" tabindex="1" />
-									
-										<label>文件:</label>
-										<input type="file" name="file${num}" id="username${num }"  class="txtfield" tabindex="2" />					
-										<input type="hidden" name="filename${num}"  value="${file.file_name }"/>
-										<input type="hidden" name="filePath${num}" value="${file.file_dir }"/>
-										<input type="hidden" name="uploader${num}" value="${file.file_uploader }"/>
-										
-										<div class="center"><input type="submit" name="loginbtn" id="loginbtn" class="flatbtn-blu hidemodal" value="确定" tabindex="3" 
-										onclick=submitNewFile(${num})></div>
-						
-										<!-- class="flatbtn-blu hidemodal" -->
-									
-									</form>
-								</div>
-								
+								</td>								 							
 								</tr>
 						  	</c:forEach>
 						  	<tr>						  	
@@ -578,7 +529,8 @@
 								
 							 </script>
 							 
-						  </tr>						  						  
+						  </tr>
+						  						  
 						
 						  <tr align="center">
 							<td colspan="8" align="center">

@@ -231,8 +231,8 @@
 		
 		<!-- //footer -->
 	</section>
-	<!--  <script src="<%=basePath%>/js/bootstrap.js"></script> -->
-	<!--  <script src="<%=basePath%>/js/proton.js"></script>-->
+	  <script src="<%=basePath%>/js/bootstrap.js"></script> 
+	  <script src="<%=basePath%>/js/proton.js"></script>
 	
 </body>
 </html>

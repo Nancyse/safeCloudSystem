@@ -414,122 +414,28 @@
 						  		<td><c:out value="${file.file_dir }"/></td>
 						  		<td><c:out value="${file.upload_time }"/></td>
 						  		<td><c:out value="${file.file_uploader }"/></td>
-						  		<td> <a class="btn btn-sm btn-success" href='javascript:void(0)' onclick="downloadFile('${file.file_name }','${file.file_dir}')"><span class="icon-download"></span> 下载</a> 
+						  		<td>
+						  			<a class="btn btn-sm btn-success" href='javascript:void(0)' onclick="downloadFile('${file.file_name }','${file.file_dir}')"><span class="icon-download"></span> 下载</a> 
+							  	
 							  		<!-- <a class="btn btn-sm btn-primary" href="add.html"><span class="icon-edit"></span> 更新</a>  --> 
-							 		<a class="btn btn-sm btn-primary" href="#loginmodal${num }" id="modaltrigger${num}" onclick="updateFile('#modaltrigger${num}')"><span class="icon-edit"></span> 更新</a>
+							  		
+							 		<!--<a class="btn btn-sm btn-primary" href="#loginmodal${num }" id="modaltrigger${num}" onclick="updateFiles('${file.file_name }','${file.file_dir}','${file.file_uploader}')"><span class="icon-edit"></span> 更新</a>-->
+							 		
+							 		
+							 		<form  action="updateFileIndex" method="POST">
+							 			<input type="hidden" name="filename"  value="${file.file_name }"/>
+										<input type="hidden" name="filePath" value="${file.file_dir }"/>
+										<input type="hidden" name="uploader" value="${file.file_uploader }"/>
+										<button type="submit" class="btn btn-sm btn-primary" ><span class="icon-edit"></span> 更新</button>										
+							 		</form>	
 								 	<a class="btn btn-danger btn-sm" href="javascript:void(0)" onclick="deleteFile('${file.file_name }','${file.file_dir}','${file.file_uploader}')"><span class="icon-trash"></span> 删除</a>
-								</td>
-								 <div id="loginmodal${num }" style="display:none;">
-									<h3>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;请选择文件</h3><br>
-									<form id="loginform${num }" name="updateform" method="post" action="filedetail.html">									
-				
-										<label>文件描述:</label><br>
-										<input type="text" name="description" id="desc${num }"  class="txtfield" tabindex="1" />
-									
-										<label>文件:</label>
-										<input type="file" name="file${num}" id="username${num }"  class="txtfield" tabindex="2" />					
-										<input type="hidden" name="filename${num}"  value="${file.file_name }"/>
-										<input type="hidden" name="filePath${num}" value="${file.file_dir }"/>
-										<input type="hidden" name="uploader${num}" value="${file.file_uploader }"/>
-										
-										<div class="center"><input type="submit" name="loginbtn" id="loginbtn" class="flatbtn-blu hidemodal" value="确定" tabindex="3" 
-										onclick=submitNewFile(${num})></div>
-						
-										<!-- class="flatbtn-blu hidemodal" -->
-									
-									</form>
-								</div>
-								
+									 
+						  		</td>
+								 								
 								</tr>
 						  	</c:forEach>
 						  	<tr>						  	
 							
-							 <script>	
-							 	window.numId;
-							 	window.sess = $("#table").attr("data-session");//获取页面的session						
-							 	
-							 	function submitNewFile(num){
-							 		window.numId = num;
-							 		var param = 'input[name="filename'+num+'"] ';
-							 		var filename = $(param).val();
-							 		param = 'input[name="filePath'+num+'"] ';
-							 		var filePath = $(param).val();
-							 		param = 'input[name="uploader'+num+'"] ';						 		
-							 		var uploader =  $(param).val();
-							 		var files = $('input[name="file'+num+'"]').prop('files');//获取到文件列表
-									var desc = $("#desc"+num).val();
-									var url = "";
-									alert("hello:"+desc+"\nfilename:"+filename+"\nfilePath:"+filePath+"\nuploader: "+uploader);
-									//alert("new file: "+files[0].name);
-									//读取文件内容
-									var reader = new FileReader();//new一个FileReader实例
-									reader.onload = function() {
-										var rawdata = this.result ; 
-										//alert("rawdata:"+rawdata);
-										//加密
-										var hash = getSha256(rawdata);
-										var key = createEncryptKey(hash);										
-										encryptdata=getAES(rawdata,key);
-										//alert("encryptdata:"+encryptdata);										
-										
-										var param = 'input[name="filename'+window.numId+'"] ';
-							 			var filename = $(param).val();
-										param = 'input[name="filePath'+window.numId+'"] ';
-							 			var filePath = $(param).val();
-							 			param = 'input[name="uploader'+window.numId+'"] ';
-							 			var uploader =  $(param).val();
-							 			param = "#desc"+window.numId;
-							 			var desc = $(param).val();
-							 			alert("hello:"+desc+"\nfilename:"+filename+"\nfilePath:"+filePath+"\nuploader"+uploader);
-							 			
-										//上传加密文件
-										var xhr = new XMLHttpRequest();
-										var url =  "updateStr";
-										var formdata = new FormData();	  
-										formdata.append("filePath",filePath);
-										formdata.append("filename",filename);
-										formdata.append("fileData",encryptdata);
-										formdata.append("length",encryptdata.length);
-										formdata.append("uploader",uploader);
-										formdata.append("JESSIONID",window.sess);
-										xhr.open("POST",url, false);
-										//xhr.setRequestHeader("X_FILENAME", file.name);
-										xhr.send(formdata);											
-									    
-									    //上传文件密钥和文件摘要
-									    var url ="updateFileData"; 
-										var formdata2 = new FormData();  
-										formdata2.append("description",desc);
-										formdata2.append("filePath",filePath);
-										formdata2.append("filename",filename);
-										formdata2.append("fileKey",key);
-										formdata2.append("fileHash",hash);
-										formdata2.append("length",encryptdata.length);
-										formdata2.append("uploader",uploader);
-										formdata2.append("JESSIONID",window.sess);
-										xhr.open("POST",url, false);										
-										
-										xhr.send(formdata2);
-										//解密
-										//rawdata = getDAes(encryptdata,key) ;
-										//alert("rawdata:"+rawdata);										
-					                }
-					                reader.readAsText(files[0]);
-									
-									return false;
-								}
-							 	
-								//弹出框调用语句
-								function updateFile(id){
-									$(id).leanModal({
-										top:110,
-										overlay:0.45,
-										closeButton:".hidemodal"
-									});
-								}
-								
-								
-							 </script>
 							 
 						  </tr>
 						  						  

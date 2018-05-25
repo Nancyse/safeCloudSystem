@@ -146,6 +146,30 @@ public class UploadController {
 		return result;
 	}
 	
+	//更新文件密文	
+	@RequestMapping(value="/updateFileIndex",method=RequestMethod.POST)		
+		public ModelAndView updateFileIndex(HttpServletRequest req,			
+				@RequestParam("filePath") String filePath,
+				@RequestParam("filename") String filename,			
+				@RequestParam("uploader") String uploader) {
+			
+			System.out.println("进入更新主页面");
+			ModelAndView mav = new ModelAndView();
+			
+			int errorCode = 0;		
+			if( UserManageUtil.isSignIn(req)<0) { //用户未登录
+				errorCode = -1;
+				mav.setViewName("safeCloudSystem/login.jsp");
+				return mav;
+			}
+			Map<String,Object> model = new HashMap<String,Object>();
+			model.put("file_name",filename );
+			model.put("file_dir",filePath );
+			model.put("file_uploader",uploader );
+			mav.addObject("file", model);
+			mav.setViewName("safeCloudSystem/updateFileIndex.jsp");			
+			return mav;			
+		}
 	
 	//更新文件密文	
 	@RequestMapping(value="/updateStr",method=RequestMethod.POST)
@@ -303,10 +327,16 @@ public class UploadController {
 	}
 	
 	
-	//所有文件信息
+	//获取用户所有文件信息
 	@RequestMapping(value="/filedetail")
-	public ModelAndView getFiledetail(HttpServletRequest req,
+	public ModelAndView getUserFiledetail(HttpServletRequest req,
 			@RequestParam(value="page",defaultValue="1")String page) {
+		return getFiledetail(req,page);
+	}
+	
+	//获取所有文件信息
+	public ModelAndView getFiledetail(HttpServletRequest req,
+			String page) {
 		ModelAndView mav = new ModelAndView();
 		
 		int startRow=0,pageSize=10, pageTimes=1;
@@ -324,16 +354,18 @@ public class UploadController {
 		//获取文件信息
 		List<Map> list = new ArrayList<Map>();
 		List<DefaultFile> fileList=null;
-		
+		String viewName="";
 		if(userType == 2) { //当前用户为管理员
 			List<DefaultFile> fl = FileManageUtil.getAllFiles();
 			pageTimes = fl.size()/pageSize+1;
 			fileList = FileManageUtil.getAllFilesByPage(startRow, pageSize);
+			viewName="safeCloudSystem/sys-filemanage.jsp";
 		}
 		else { //当前用户为普通用户
 			List<DefaultFile> fl = FileManageUtil.getUserAllFiles(uploader);
 			pageTimes = fl.size()/pageSize+1;
 			fileList = FileManageUtil.getUserFilesByPage(uploader, startRow, pageSize);
+			viewName="safeCloudSystem/filedetail.jsp"; 
 		}
 			
 		for( DefaultFile f : fileList) {			
@@ -348,7 +380,7 @@ public class UploadController {
 			model.put("upload_time", f.getUpload_time());
 			list.add(model);			
 		}		
-		String viewName="safeCloudSystem/filedetail.jsp";  //真实用
+		//String viewName="safeCloudSystem/filedetail.jsp";  //真实用
 		//String viewName="safeCloudSystem/testForEach.jsp";//测试用
 		String modelName = "fileList";	
 		mav.addObject(modelName, list);
@@ -535,11 +567,9 @@ public class UploadController {
 	
 	//后台管理系统-文件管理
 	@RequestMapping(value="/sys-filemanage")
-	public String sysFileManage(HttpServletRequest req) {
-		if(UserManageUtil.isSignIn(req) == -1) {  //用户未登录				
-			return "safeCloudSystem/login.jsp";
-		}	
-		return "safeCloudSystem/sys-filemanage.jsp";
+	public ModelAndView sysFileManage(HttpServletRequest req,
+			@RequestParam(value="page",defaultValue="1")String page) {
+		return getFiledetail(req,page);
 	}
 	
 	//后台管理系统-目录管理
