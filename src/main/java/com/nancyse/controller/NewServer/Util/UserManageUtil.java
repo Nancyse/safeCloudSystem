@@ -1,7 +1,9 @@
 package com.nancyse.controller.NewServer.Util;
 
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -32,6 +34,7 @@ public class UserManageUtil {
 	public static int createNewUser( String username,int type,String email) {
 		//判断用户名是否已注册
 		if( UserManageUtil.isLogIn(email)) {
+			System.out.println("用户邮箱已注册");
 			return 1;
 		}
 		//生成用户名
@@ -49,6 +52,7 @@ public class UserManageUtil {
 		//将新用户的信息保存到数据库中	
 		User user = new User(username,encryptPwd,type,email,userspace);
 		UserManageUtil.saveNewUserData(user);	
+		System.out.println("新用户添加成功");
 		return 0;
 	}
 	
@@ -98,8 +102,8 @@ public class UserManageUtil {
 			return false;
 		}	
 		String encryptPwd = FileEncryptUtil.getSHA256HashCode(pwd.getBytes());
-		sqlSession = sqlSessionFactory.openSession();
-		User user = sqlSession.selectOne(statementId+"UserMapper.selectOne",username);
+		
+		User user = getOneUser(username);
 		Boolean result=false;
 		if( user!=null && encryptPwd.equals(user.getUser_pwd()) ) {
 			HttpSession session = req.getSession();
@@ -112,7 +116,14 @@ public class UserManageUtil {
 		}
 		return result;
 	}
-		
+	
+	//获取单个用户信息
+	public static User getOneUser(String username) {
+		sqlSession = sqlSessionFactory.openSession();
+		User user = sqlSession.selectOne(statementId+"UserMapper.selectOne",username);
+		sqlSession.close();	
+		return user;		
+	}
 		
 	//更新用户密码
 	public static void updateUserPwd(User user) {
@@ -128,4 +139,18 @@ public class UserManageUtil {
 		List<User> userList = sqlSession.selectList(statementId+"UserMapper.selectAll");
 		return userList;		
 	}
+	
+	
+	//获取所有用户信息
+	public static List<User> getAllUsersByPage(int startRow,int pageSize) {
+		Map<String,Object> map = new HashMap<String,Object>();		
+		map.put("startRow", startRow);
+		map.put("pageSize", pageSize);
+		sqlSession = sqlSessionFactory.openSession();
+		List<User> userList = sqlSession.selectList(statementId+"UserMapper.getAllUsersByPage",map);
+		sqlSession.close();
+		return userList;		
+	}
+	
+	
 }

@@ -260,7 +260,7 @@ public class FileManageUtil {
 		return dfList;		
 	}
 	
-	//返回当前用户所有的文件
+	//返回用户所有的文件
 	public static List<DefaultFile> getUserAllFiles(String uploader) {
 		SqlSession sqlSession = sqlSessionFactory.openSession();
 		DefaultFile df = new DefaultFile();
@@ -269,6 +269,18 @@ public class FileManageUtil {
 		sqlSession.close();
 		return dfList;		
 	}
+	
+	//返回文件总数
+	public static long countFiles() {
+		long num;
+		SqlSession sqlSession = sqlSessionFactory.openSession();				
+		num = sqlSession.selectOne(statementId+"DefaultFileMapper.countFiles");
+		sqlSession.close();
+		return num;
+	}
+		
+	
+	
 	
 	//查找文件
 	public static List findFile(String uploader,String word) {

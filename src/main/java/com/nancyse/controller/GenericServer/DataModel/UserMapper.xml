@@ -19,6 +19,9 @@
  	<select id="searchSameEmail" parameterType="String" resultType="java.lang.Integer" >
  		Select count(*) from Users where user_email=#{user_email}
  	</select>
+ 	<select id="getAllUsersByPage" parameterType="java.util.Map"  resultType="com.nancyse.controller.GenericServer.DataModel.User">
+		select * from Users order by user_id desc limit #{startRow},#{pageSize}
+	</select>
  	
  	<update id="updatePwd" parameterType="com.nancyse.controller.GenericServer.DataModel.User">
  		update Users set user_pwd=#{user_pwd} where user_name=#{user_name}

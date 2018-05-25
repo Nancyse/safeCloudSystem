@@ -26,6 +26,8 @@ import com.nancyse.controller.GenericServer.DataModel.DefaultFile;
 import com.nancyse.controller.GenericServer.DataModel.User;
 import com.nancyse.controller.NewServer.Const.FilePath;
 import com.nancyse.controller.NewServer.Const.OSSConfig;
+import com.nancyse.controller.NewServer.Const.PageData;
+import com.nancyse.controller.NewServer.Util.DirManageUtil;
 import com.nancyse.controller.NewServer.Util.FileBufferManageUtil;
 import com.nancyse.controller.NewServer.Util.FileManageUtil;
 import com.nancyse.controller.NewServer.Util.OSSManageUtil;
@@ -497,6 +499,7 @@ public class UploadController {
 			@RequestParam("filename") String filename,
 			@RequestParam("filePath") String filePath){
 		
+		System.out.println("获取文件摘要和密钥");
 		int errorCode;
 		if(UserManageUtil.isSignIn(req) == -1) {  //用户未登录	
 			errorCode = -1;
@@ -530,7 +533,7 @@ public class UploadController {
 		return "safeCloudSystem/changePassword.jsp";
 	}
 	
-	//需改密码
+	//后台管理系统-文件管理
 	@RequestMapping(value="/sys-filemanage")
 	public String sysFileManage(HttpServletRequest req) {
 		if(UserManageUtil.isSignIn(req) == -1) {  //用户未登录				
@@ -539,6 +542,91 @@ public class UploadController {
 		return "safeCloudSystem/sys-filemanage.jsp";
 	}
 	
+	//后台管理系统-目录管理
+	@RequestMapping(value="/sys-dirsmanage")
+	public ModelAndView sysDirManage(HttpServletRequest req,
+			@RequestParam(value="page",defaultValue="1")String page) {
+		ModelAndView mav = new ModelAndView();
+		if(UserManageUtil.isSignIn(req) == -1) {  //用户未登录
+			String viewName="safeCloudSystem/login.jsp";
+			mav.setViewName(viewName);
+			return mav;
+		}	
+		return DirManageUtil.getAllDirs(req, page);				
+		
+	}
+	
+	//后台管理系统-用户管理
+	@RequestMapping(value="/sys-usermanage")
+	public ModelAndView sysUserManage(HttpServletRequest req,
+			@RequestParam(value="page",defaultValue="1")String page ){
+		
+		ModelAndView mav = new ModelAndView();
+		int startRow=0, pageSize=PageData.PAGESIZE ;
+		long pageTimes=1;
+		startRow = (Integer.parseInt(page)-1)*pageSize;
+		
+		if(UserManageUtil.isSignIn(req) == -1) {  //用户未登录				
+			String viewName="safeCloudSystem/login.jsp";
+			mav.setViewName(viewName);
+			return mav;
+		}	
+		
+		HttpSession session = req.getSession();
+		int userType = (Integer)session.getAttribute("userType");
+		String username = (String) session.getAttribute("username");//当前登陆用户
+		
+		//获取文件信息
+		List<Map> list = new ArrayList<Map>();
+		List<User> userList = null;
+		if(userType == 2) { //当前用户为管理员
+			List<User> ul = UserManageUtil.getAllUserData();
+			pageTimes = ul.size()/pageSize+1;
+			
+			userList = UserManageUtil.getAllUsersByPage(startRow, pageSize);
+			for(User user: userList) {				
+				Map<String,Object> model = new HashMap<String,Object>();
+				model.put("user_name",user.getUser_name() );
+				if(user.getUser_type()==1)
+					model.put("user_type", "用户");
+				else
+					model.put("user_type", "管理员");		
+				model.put("user_email",user.getUser_email() );
+				model.put("user_space",user.getUser_space());								
+				list.add(model);			
+			}	
+			String viewName="safeCloudSystem/sys-usermanage.jsp";  //真实用
+			String modelName = "userList";	
+			mav.addObject(modelName, list);
+			mav.addObject("currentPage", Integer.parseInt(page));		
+			mav.addObject("pageTimes", pageTimes);
+			mav.setViewName(viewName);
+			
+		}else {
+			String viewName = "safeCloudSystem/error.jsp";
+			mav.setViewName(viewName);
+		}
+		
+		return mav;
+	}
+	
+	//测试
+	@RequestMapping(value="/createNewUser")
+	public String createNewUser() {
+		return "safeCloudSystem/createNewUser.jsp";
+	}
+	
+	//添加用户
+	@RequestMapping(value="/NewUser",method=RequestMethod.POST)
+	public String NewUser(HttpServletRequest req,
+			@RequestParam("username") String username,
+			@RequestParam("type") int type,
+			@RequestParam("email")String email) {
+		
+		UserManageUtil.createNewUser(username, type, email);
+		
+		return "safeCloudSystem/sys-usermanage.jsp";
+	}
 	
 	//测试
 	@RequestMapping(value="/testJS3")

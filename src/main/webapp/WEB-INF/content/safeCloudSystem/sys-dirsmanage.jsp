@@ -7,7 +7,7 @@
 %>
 <!DOCTYPE html>
 <head>
-<title>文件信息</title>
+<title>目录管理</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="keywords" content="" />
@@ -268,7 +268,7 @@
 					</span>
 				</a>
 			</li>
-									
+			
 			<li class="has-subnav">
 				<a href="commonfaq.html">
 					<i class="fa fa-list-ul" ></i>
@@ -347,7 +347,7 @@
 					<h2>
 						<a href="index.html">首页</a>
 						<i class="fa fa-angle-right"></i>
-						<span>文件信息</span>
+						<span>目录管理</span>
 					</h2>
 				</div>
 				
@@ -355,180 +355,56 @@
 					<div class="w3l-table-info">
 					  
 					    <table id="table" data-session="<%=session.getId() %>">
-						<div style="height:40px;border-bottom:2px solid #EBEBEB;">
-						
+						<div style="height:40px;border-bottom:2px solid #EBEBEB;">					
+				
 								搜索：
-								文件大小&nbsp;<input type="number" placeholder="最小值" id="minNum" class="input" style="width:80px; line-height:17px;display:inline-block" />
-								- 
-								  <input type="number" placeholder="最大值"  id="maxNum" class="input" style="width:80px; line-height:17px;display:inline-block" />
+								  用户名
+								  &nbsp;<input type="text" placeholder="查找用户名"  id="userKeyword" class="input" style="width:120px; line-height:17px;display:inline-block" /> 
+								  &nbsp;&nbsp;								 
+
+								专属空间
+								  &nbsp;<input type="text" placeholder="查找空间"  id="spaceKeyword" class="input" style="width:120px; line-height:17px;display:inline-block" /> 
+								  &nbsp;&nbsp;								  
+								路径
+								  &nbsp;<input type="text" placeholder="查找路径"  id="dirKeyword" class="input" style="width:120px; line-height:17px;display:inline-block" /> 
 								  &nbsp;&nbsp;
-								  文件路径
-								  &nbsp;<input type="text" placeholder="请输入文件路径"  id="dirKeyword" class="input" style="width:120px; line-height:17px;display:inline-block" /> 
-								  &nbsp;&nbsp;
-								  文件类型
-								  <select id="fileType_id" class="input" onchange="changesearch()"  style="width:60px; line-height:17px;display:inline-block">
-									<option value="">选择</option>
-									<option value="1">pdf</option>
-									<option value="2">txt</option>
-									<option value="3">zip</option>
-									<option value="4">jpg</option>
-									<option value="5">doc</option>
-								  </select>
-							
-								  <input type="text" placeholder="请输入文件名关键字" id="keywords" class="input" style="width:250px; line-height:17px;display:inline-block" />
-								 <!-- <a href="javascript:void(0)" class="button border-main icon-search" onclick="changesearch()" > 搜索</a></li>-->
 								 <a href="#" class="btn btn-info btn-sm " onclick="searchFile()"><span class="icon-search"></span></a>
 								
-								&nbsp;&nbsp;&nbsp;&nbsp;
-								<a href="">上一页</a> 
-								<span >1</span> 
-								<a href="">2</a> 
-								<a href="">3</a> 
-								<a href="">下一页</a>
-								<a href="">尾页</a> 
-								</td>									
+								</td>								
 						</div>
 						
 						<thead>
 						  <tr>
 							<th>序号</th>
-							<th>文件名</th>
-							<th>文件类型</th>
-							<th>文件大小（单位:B）</th>
-							<th>上一级路径</th>
-							<th>上传时间</th>
-							<th>上传者</th>
-							<th>操作</th>
+							<th>用户名</th>													
+							<th>专属空间</th>						
+							<th>已创建的路径</th>
 						  </tr>
 						</thead>
 						<tbody>
 						  
 						  	<c:set var="num" value="0"/>
-						  	<c:forEach var="file" items="${fileList}">
+						  	<c:forEach var="dir" items="${dirsList}">
 						  		<c:set var="num" value="${num+1}"/>
 						  		<tr>
 						  		<td><c:out value="${num }"/></td>
-						  		<td><c:out value="${file.file_name }"/></td>
-						  		<td><c:out value="${file.file_type }"/></td>
-						  		<td><c:out value="${file.file_size }"/></td>
-						  		<td><c:out value="${file.file_dir }"/></td>
-						  		<td><c:out value="${file.upload_time }"/></td>
-						  		<td><c:out value="${file.file_uploader }"/></td>
-						  		<td> <a class="btn btn-sm btn-success" href='javascript:void(0)' onclick="downloadFile('${file.file_name }','${file.file_dir}')"><span class="icon-download"></span> 下载</a> 
-							  		<!-- <a class="btn btn-sm btn-primary" href="add.html"><span class="icon-edit"></span> 更新</a>  --> 
-							 		<a class="btn btn-sm btn-primary" href="#loginmodal${num }" id="modaltrigger${num}" onclick="updateFile('#modaltrigger${num}')"><span class="icon-edit"></span> 更新</a>
-								 	<a class="btn btn-danger btn-sm" href="javascript:void(0)" onclick="deleteFile('${file.file_name }','${file.file_dir}','${file.file_uploader}')"><span class="icon-trash"></span> 删除</a>
-								</td>
-								 <div id="loginmodal${num }" style="display:none;">
-									<h3>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;请选择文件</h3><br>
-									<form id="loginform${num }" name="updateform" method="post" action="filedetail.html">									
-				
-										<label>文件描述:</label><br>
-										<input type="text" name="description" id="desc${num }"  class="txtfield" tabindex="1" />
-									
-										<label>文件:</label>
-										<input type="file" name="file${num}" id="username${num }"  class="txtfield" tabindex="2" />					
-										<input type="hidden" name="filename${num}"  value="${file.file_name }"/>
-										<input type="hidden" name="filePath${num}" value="${file.file_dir }"/>
-										<input type="hidden" name="uploader${num}" value="${file.file_uploader }"/>
-										
-										<div class="center"><input type="submit" name="loginbtn" id="loginbtn" class="flatbtn-blu hidemodal" value="确定" tabindex="3" 
-										onclick=submitNewFile(${num})></div>
-						
-										<!-- class="flatbtn-blu hidemodal" -->
-									
-									</form>
-								</div>
-								
+						  		<td><c:out value="${dir.user_name }"/></td>						  							  		
+						  		<td><c:out value="${dir.user_space }"/></td>
+						  		<td><c:out value="${dir.file_dir }"/></td>
 								</tr>
 						  	</c:forEach>
-						  	<tr>						  	
+						  	
+						  	<tr>
+						  		<td><c:out value="1"/></td>
+						  		<td><c:out value="lps"/></td>						  							  		
+						  		<td><c:out value="lpsSpace/"/></td>
+						  		<td><c:out value="test_dir/"/></td>
+							</tr>
 							
 							 <script>	
 							 	window.numId;
 							 	window.sess = $("#table").attr("data-session");//获取页面的session						
 							 	
-							 	function submitNewFile(num){
-							 		window.numId = num;
-							 		var param = 'input[name="filename'+num+'"] ';
-							 		var filename = $(param).val();
-							 		param = 'input[name="filePath'+num+'"] ';
-							 		var filePath = $(param).val();
-							 		param = 'input[name="uploader'+num+'"] ';						 		
-							 		var uploader =  $(param).val();
-							 		var files = $('input[name="file'+num+'"]').prop('files');//获取到文件列表
-									var desc = $("#desc"+num).val();
-									var url = "";
-									alert("hello:"+desc+"\nfilename:"+filename+"\nfilePath:"+filePath+"\nuploader: "+uploader);
-									//alert("new file: "+files[0].name);
-									//读取文件内容
-									var reader = new FileReader();//new一个FileReader实例
-									reader.onload = function() {
-										var rawdata = this.result ; 
-										//alert("rawdata:"+rawdata);
-										//加密
-										var hash = getSha256(rawdata);
-										var key = createEncryptKey(hash);										
-										encryptdata=getAES(rawdata,key);
-										//alert("encryptdata:"+encryptdata);										
-										
-										var param = 'input[name="filename'+window.numId+'"] ';
-							 			var filename = $(param).val();
-										param = 'input[name="filePath'+window.numId+'"] ';
-							 			var filePath = $(param).val();
-							 			param = 'input[name="uploader'+window.numId+'"] ';
-							 			var uploader =  $(param).val();
-							 			param = "#desc"+window.numId;
-							 			var desc = $(param).val();
-							 			alert("hello:"+desc+"\nfilename:"+filename+"\nfilePath:"+filePath+"\nuploader"+uploader);
-							 			
-										//上传加密文件
-										var xhr = new XMLHttpRequest();
-										var url =  "updateStr";
-										var formdata = new FormData();	  
-										formdata.append("filePath",filePath);
-										formdata.append("filename",filename);
-										formdata.append("fileData",encryptdata);
-										formdata.append("length",encryptdata.length);
-										formdata.append("uploader",uploader);
-										formdata.append("JESSIONID",window.sess);
-										xhr.open("POST",url, false);
-										//xhr.setRequestHeader("X_FILENAME", file.name);
-										xhr.send(formdata);											
-									    
-									    //上传文件密钥和文件摘要
-									    var url ="updateFileData"; 
-										var formdata2 = new FormData();  
-										formdata2.append("description",desc);
-										formdata2.append("filePath",filePath);
-										formdata2.append("filename",filename);
-										formdata2.append("fileKey",key);
-										formdata2.append("fileHash",hash);
-										formdata2.append("length",encryptdata.length);
-										formdata2.append("uploader",uploader);
-										formdata2.append("JESSIONID",window.sess);
-										xhr.open("POST",url, false);										
-										
-										xhr.send(formdata2);
-										//解密
-										//rawdata = getDAes(encryptdata,key) ;
-										//alert("rawdata:"+rawdata);										
-					                }
-					                reader.readAsText(files[0]);
-									
-									return false;
-								}
-							 	
-								//弹出框调用语句
-								function updateFile(id){
-									$(id).leanModal({
-										top:110,
-										overlay:0.45,
-										closeButton:".hidemodal"
-									});
-								}
-								
-								
 							 </script>
 							 
 						  </tr>
@@ -536,12 +412,29 @@
 						
 						  <tr align="center">
 							<td colspan="8" align="center">
-							<a href="">上一页</a> 
-							<span >1</span> 
-							<a href="">2</a> 
-							<a href="">3</a> 
-							<a href="">下一页</a>
-							<a href="">尾页</a> 
+							
+								<c:if test="${currentPage == 1 }">
+									 <span class="disabled"><< 前一页</span>    
+								</c:if>
+								<c:if test="${currentPage != 1 }">
+									 <a href="sys-dirsmanage?page=${currentPage-1 }"><< 前一页</span>    
+								</c:if>
+																
+						        <span >${currentPage }</span>      
+							    
+								<c:forEach var="i" begin="${currentPage }" end="${pageTimes }">
+									
+							        <c:if test="${i != currentPage}">
+							             <a href="sys-dirsmanage?page=${i}">${i}</a>
+							        </c:if>
+							        
+								</c:forEach>								
+						        <c:if test="${currentPage < pageTimes}">
+						        	<a href="sys-dirsmanage?page=${currentPage+1}">后一页 >></a>
+						        </c:if> 
+						        <c:if test="${currentPage == pageTimes}">
+						            	<span class="disabled">后一页 >></span>        
+						      	</c:if>
 							</td>
 						  </tr>
 						  

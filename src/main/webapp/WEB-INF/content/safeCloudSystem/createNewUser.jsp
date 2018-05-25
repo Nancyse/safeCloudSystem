@@ -1,12 +1,12 @@
- <%@ page language="java" import="java.util.*" pageEncoding="utf-8" isELIgnored="false"%>
- <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %> 
- <%
+<%@ page language="java" import="java.util.*" pageEncoding="utf-8" isELIgnored="false" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %> 
+<%
     String path = request.getContextPath();
     String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
 %>
 <!DOCTYPE html>
 <head>
-<title>Home</title>
+<title>个人信息</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="keywords" content="" />
@@ -17,7 +17,7 @@
 <!-- Custom CSS -->
 <link href="<%=basePath%>/css/style.css" rel='stylesheet' type='text/css' />
 <!-- font CSS -->
-<!--  -->
+<link href='http://fonts.useso.com/css?family=Roboto:400,100,100italic,300,300italic,400italic,500,500italic,700,700italic,900,900italic' rel='stylesheet' type='text/css'>
 <!-- font-awesome icons -->
 <link rel="stylesheet" href="<%=basePath%>/css/font.css" type="text/css"/>
 <link href="<%=basePath%>/css/font-awesome.css" rel="stylesheet"> 
@@ -51,24 +51,10 @@
 			});	
 		});
 		</script>
-<!-- charts -->
-<script src="<%=basePath%>/js/raphael-min.js"></script>
-<script src="<%=basePath%>/js/morris.js"></script>
-<link rel="stylesheet" href="<%=basePath%>/css/morris.css">
-<!-- //charts -->
-<!--skycons-icons-->
-<script src="<%=basePath%>/js/skycons.js"></script>
-<!--//skycons-icons-->
+		
 </head>
 <body class="dashboard-page">
-	<script>
-	        var theme = $.cookie('protonTheme') || 'default';
-	        $('body').removeClass (function (index, css) {
-	            return (css.match (/\btheme-\S+/g) || []).join(' ');
-	        });
-	        if (theme !== 'default') $('body').addClass(theme);
-        </script>
-	
+
 	<nav class="main-menu">
 		<ul>
 			<li>
@@ -83,7 +69,7 @@
 		
 			
 			<li>
-				<a href="uploadfile.html?JESSIONID=<%=session.getId() %>">
+				<a href="uploadfile.html">
 					<i class="icon-font nav-icon"></i>
 					<span class="nav-text">
 					上传文件
@@ -130,7 +116,6 @@
 		</ul>
 	</nav>
 	
-	
 	<section class="wrapper scrollable">
 		<nav class="user-menu">
 			<a href="javascript:;" class="main-menu-access">
@@ -138,11 +123,10 @@
 			<i class="icon-reorder"></i>
 			</a>
 		</nav>
-		<section class="title-bar">
+		<section class="title-bar"  >
 			<div class="logo" style="width:400px;">
 				<h1><a href="index.html"><img src="<%=basePath%>/images/logo.png" alt="" />安全文件传输系统</a></h1>
 			</div>
-			
 			<div class="header-right">
 				<div class="profile_details_left">
 					
@@ -156,10 +140,10 @@
 									</div>	
 								</a>
 								<ul class="dropdown-menu drp-mnu"> 
-									<li> <a href="persondetail.html"><i class="fa fa-user"></i> 个人信息</a> </li> 
+									<li> <a href="persondetail.html"><i class="fa fa-user"></i> 个人信息</a> </li>
 									<c:if test="${sessionScope.userType eq '2' }">
 										<li> <a href="sys-filemanage.html"><i class="fa fa-user"></i> 系统管理</a> </li> 
-									</c:if>
+									</c:if>	 
 									<li> <a href="logout"><i class="fa fa-sign-out"></i> 注销</a> </li>
 								</ul>
 							</li>
@@ -173,66 +157,48 @@
 		
 		
 		<div class="main-grid">
-			
-			<div class="social grid">
-					<div class="grid-info">
-						<div class="col-md-3 top-comment-grid">
-							<div class="comments views">
-								<div class="comments-icon">
-									<!--<i class="fa fa-comments"></i>-->
-									<i class="fa fa-cloud-upload" style="font-size:80px;color:#EBEBEB"></i>
+			<div class="agile-grids">	
+				<!-- input-forms -->
+				<div class="grids">
+					
+					<div class="panel panel-widget forms-panel">
+						<div class="forms">
+							<div class="form-grids widget-shadow" data-example-id="basic-forms"> 
+								<div class="form-title">
+									<h4>个人信息 :</h4>
 								</div>
-								<div class="comments-info">
-									<!--<h3>upload</h3>-->
-									<br>
-									<a href="uploadfile"><font size="5" style="color:#EBEBEB;">文件上传</font></a>
-								</div>
-								<div class="clearfix"> </div>
-							</div>
-						</div>
-						
-						<div class="col-md-3 top-comment-grid">
-							<div class="comments tweets">
-								<div class="comments-icon">
-									<i class="fa fa-cloud-download" style="font-size:80px; color:#EBEBEB"></i>
+								<form class="form-body" action="NewUser" method="POST">
 									
-								</div>
-								<div class="comments-info">
-									<!--<h3>upload</h3>-->
-									<br>
-									<a href="filedetail.html"><font size="5" style="color:#EBEBEB;">文件下载</font></a>
-								</div>
-								<div class="clearfix"> </div>
-							</div>
-						</div>
-						
-						
-						<div class="col-md-3 top-comment-grid">
-							<div class="comments ">
-								<div class="comments-icon">
-									<i class="fa fa-file" style="font-size:80px;color:#EBEBEB"></i>
+									<div class="form-group"> 
+											<label for="exampleInputEmail1">用户名： </label>											
+											<input type="text" name="username" value="pslin" />
+									</div> 
+									<div class="form-group"> 
+											<label for="exampleInputEmail1">&nbsp;&nbsp;&nbsp;&nbsp;用户类型：  </label> 
+											<input type="text" name="type"/>
+									</div>
+									<div class="form-group"> 
+											<label for="exampleInputEmail1">&nbsp;&nbsp;&nbsp;&nbsp;用户邮箱：  </label> 
+											<input type="text" name="email"/>
+									</div>
 									
-								</div>
-								<div class="comments-info">
 									<br>
-									<a href="filedetail.html"><font size="5" style="color:#EBEBEB;">文件详情</font></a>
-								</div>
-								<div class="clearfix"> </div>
+									<input type="submit" class="btn btn-info" value="提交"/>
+									
+								</form>
 							</div>
 						</div>
-						
-						<div class="clearfix"> </div>
 					</div>
+					
+				</div>
+				<!-- //input-forms -->
 			</div>
-			
-			
 		</div>
 		<!-- footer -->
 		
 		<!-- //footer -->
 	</section>
-	<!--  <script src="<%=basePath%>/js/bootstrap.js"></script> -->
-	<!--  <script src="<%=basePath%>/js/proton.js"></script>-->
-	
+	<script src="<%=basePath%>/js/bootstrap.js"></script>
+	<script src="<%=basePath%>/js/proton.js"></script>
 </body>
 </html>

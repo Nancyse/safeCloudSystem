@@ -166,7 +166,7 @@
 			var encryptData = xhr.responseText;
 			
 			//获取文件加密的密钥和摘要
-			url="http://localhost/safeCloudSystem/server/getFilehashAndKey";
+			url="getFilehashAndKey";
 			xhr.open("POST",url, false);
 			//xhr.withCredentials = true; //设置传递cookie，如果不需要直接注释就好
 			//xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest"); //请求头部，需要服务端同时设置

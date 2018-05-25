@@ -1,4 +1,5 @@
-<%@ page language="java" import="java.util.*" pageEncoding="utf-8"%>
+ <%@ page language="java" import="java.util.*" pageEncoding="utf-8" isELIgnored="false"%>
+ <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %> 
 <%
     String path = request.getContextPath();
     String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
@@ -154,7 +155,10 @@ $(function () {
 									</div>	
 								</a>
 								<ul class="dropdown-menu drp-mnu"> 
-									<li> <a href="persondetail.html"><i class="fa fa-user"></i> 个人信息</a> </li> 
+									<li> <a href="persondetail.html"><i class="fa fa-user"></i> 个人信息</a> </li>
+									<c:if test="${sessionScope.userType eq '2' }">
+										<li> <a href="sys-filemanage.html"><i class="fa fa-user"></i> 系统管理</a> </li> 
+									</c:if> 
 									<li> <a href="login.html"><i class="fa fa-sign-out"></i> 注销</a> </li>
 								</ul>
 							</li>

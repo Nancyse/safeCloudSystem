@@ -23,6 +23,12 @@
 	</select>
 	<select id="getAllFilesByPage" parameterType="java.util.Map"  resultType="com.nancyse.controller.GenericServer.DataModel.DefaultFile">
 		select * from Files order by file_id desc limit #{startRow},#{pageSize}
+	</select>	
+	<select id="countFiles"  resultType="long">
+		select count(*) from Files 
+	</select>
+	<select id="countUserFiles" parameterType="com.nancyse.controller.GenericServer.DataModel.DefaultFile" resultType="Integer">
+		select count(*) from Files where file_uploader=#{uploader}
 	</select>
 	
 	<insert id="save" parameterType="com.nancyse.controller.GenericServer.DataModel.DefaultFile" >
